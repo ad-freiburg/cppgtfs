@@ -1346,6 +1346,16 @@ ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field) const {
 // ____________________________________________________________________________
 ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field,
                                    bool req) const {
+  if (field >= csv.getNumColumns()) {
+    if (!req) {
+      return ServiceDate();
+    } else {
+      std::stringstream msg;
+      msg << "expected a date in the YYYYMMDD format";
+      throw ParserException(msg.str(), csv.getFieldName(field),
+                            csv.getCurLine());
+    }
+  }
   const char* val = csv.getTString(field);
   if (strlen(val) == 0 && !req) return ServiceDate();
 

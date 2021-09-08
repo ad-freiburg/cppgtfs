@@ -37,6 +37,7 @@ struct Route {
     GONDOLA = 6,
     FUNICULAR = 7,
     COACH = 200,
+    AIR = 199,
     NONE = 99
   };
 
@@ -144,7 +145,6 @@ struct Route {
       case 905:
       case 906:
         return Route::TYPE::TRAM;
-      // TODO(patrick): from here on not complete!
       case 4:
       case 1000:
       case 1001:
@@ -171,12 +171,28 @@ struct Route {
       case 1200:
       case 1502:
         return Route::TYPE::FERRY;
+      // TODO(patrick): from here on not complete!
       case 6:
       case 1300:
       case 1301:
       case 1304:
       case 1306:
       case 1307:
+        return Route::TYPE::GONDOLA;
+      case 1101:
+      case 1102:
+      case 1103:
+      case 1104:
+      case 1105:
+      case 1106:
+      case 1107:
+      case 1108:
+      case 1109:
+      case 1110:
+      case 1111:
+      case 1112:
+      case 1113:
+      case 1114:
         return Route::TYPE::GONDOLA;
       case 7:
       case 116:
@@ -252,6 +268,11 @@ struct Route {
 
     if (name == "gondola") {
       ret.insert(flat::Route::TYPE::GONDOLA);
+      return ret;
+    }
+
+    if (name == "air") {
+      ret.insert(flat::Route::TYPE::AIR);
       return ret;
     }
 
