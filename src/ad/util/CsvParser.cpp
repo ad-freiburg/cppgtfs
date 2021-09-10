@@ -14,9 +14,13 @@
 using ad::util::CsvParser;
 using std::remove;
 
+namespace ad {
+namespace util {
 // cached first 10 powers of 10
 static int pow10[10] = {1,      10,      100,      1000,      10000,
                         100000, 1000000, 10000000, 100000000, 1000000000};
+}  // namespace util
+}  // namespace ad
 
 // _____________________________________________________________________________
 CsvParser::CsvParser() {}
@@ -155,8 +159,7 @@ double CsvParser::getDouble(const size_t i) const {
   if (fail) {
     std::string a = "expected float number, found ";
     a += _currentItems[i];
-    throw CsvParserException(a, i, getFieldName(i),
-                             _curLine);
+    throw CsvParserException(a, i, getFieldName(i), _curLine);
   }
   return ret;
 }
@@ -293,7 +296,7 @@ inline double CsvParser::atof(const char* p, uint8_t mn, bool* fail) {
     }
 
     if (n < 10)
-      ret += f / pow10[n];
+      ret += f / ad::util::pow10[n];
     else
       ret += f / std::pow(10, n);
   } else if (*p != 0 && *p != ' ') {
