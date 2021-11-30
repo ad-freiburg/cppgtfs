@@ -9,6 +9,7 @@
 #include <functional>
 #include <iostream>
 #include <string>
+#include <limits>
 #include "CsvParser.h"
 
 using ad::util::CsvParser;
