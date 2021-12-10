@@ -13,6 +13,11 @@
 
 using ad::util::CsvWriter;
 
+// cached first 10 powers of 10
+static int pow10cache[10] = {
+    1,           10,          100,           1000,          10000,
+    100000,      1000000,     10000000,      100000000,     1000000000};
+
 // _____________________________________________________________________________
 CsvWriter::CsvWriter(std::ostream* str, const HeaderList& headers)
     : _stream(str),
@@ -22,11 +27,24 @@ CsvWriter::CsvWriter(std::ostream* str, const HeaderList& headers)
       _delim(',') {}
 
 // _____________________________________________________________________________
+int CsvWriter::pow10(int i) const {
+  if (i < 10) return pow10cache[i];
+  return pow(10, i);
+}
+
+// _____________________________________________________________________________
+void CsvWriter::writeDouble(double d, size_t digits) {
+  double p = pow10(digits);
+  d = std::round(d * p) / p;
+  writeDouble(d);
+}
+
+// _____________________________________________________________________________
 void CsvWriter::writeDouble(double d) {
   ad::util::dtoa_milo(d, _dblBuf);
   if (!_first) _stream->write(&_delim, 1);
   _first = false;
-  _stream->write(_dblBuf, strlen(_dblBuf));
+  *_stream <<_dblBuf;
 }
 
 // _____________________________________________________________________________

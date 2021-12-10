@@ -12,18 +12,18 @@
 #include "gtfs/Trip.h"
 #include "gtfs/flat/Agency.h"
 
-using ad::util::CsvWriter;
 using ad::cppgtfs::Writer;
 using ad::cppgtfs::gtfs::Agency;
-using ad::cppgtfs::gtfs::Stop;
 using ad::cppgtfs::gtfs::Route;
-using ad::cppgtfs::gtfs::Trip;
 using ad::cppgtfs::gtfs::Service;
 using ad::cppgtfs::gtfs::ServiceDate;
-using ad::cppgtfs::gtfs::StopTime;
 using ad::cppgtfs::gtfs::Shape;
 using ad::cppgtfs::gtfs::ShapePoint;
+using ad::cppgtfs::gtfs::Stop;
+using ad::cppgtfs::gtfs::StopTime;
 using ad::cppgtfs::gtfs::Time;
+using ad::cppgtfs::gtfs::Trip;
+using ad::util::CsvWriter;
 
 // ____________________________________________________________________________
 bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
@@ -167,8 +167,8 @@ bool Writer::writeStop(const gtfs::flat::Stop& s, CsvWriter* csvw) const {
   csvw->writeString(s.code);
   csvw->writeString(s.name);
   csvw->writeString(s.desc);
-  csvw->writeDouble(s.lat);
-  csvw->writeDouble(s.lng);
+  csvw->writeDouble(s.lat, 6);
+  csvw->writeDouble(s.lng, 6);
   csvw->writeString(s.zone_id);
   csvw->writeString(s.stop_url);
   csvw->writeInt(s.location_type);
@@ -255,7 +255,7 @@ bool Writer::writeStopTime(const gtfs::flat::StopTime& st,
   csvw->writeInt(st.pickupType);
   csvw->writeInt(st.dropOffType);
   if (st.shapeDistTravelled > -.5)
-    csvw->writeDouble(st.shapeDistTravelled);
+    csvw->writeDouble(st.shapeDistTravelled, 3);
   else
     csvw->skip();
   csvw->writeInt(st.isTimepoint);
@@ -292,11 +292,11 @@ CsvWriter Writer::getShapesCsvw(std::ostream* os) {
 bool Writer::writeShapePoint(const gtfs::flat::ShapePoint& s,
                              CsvWriter* csvw) const {
   csvw->writeString(s.id);
-  csvw->writeDouble(s.lat);
-  csvw->writeDouble(s.lng);
+  csvw->writeDouble(s.lat, 6);
+  csvw->writeDouble(s.lng, 6);
   csvw->writeInt(s.seq);
   if (s.travelDist > -0.5)
-    csvw->writeDouble(s.travelDist);
+    csvw->writeDouble(s.travelDist, 3);
   else
     csvw->skip();
   csvw->flushLine();
@@ -357,8 +357,9 @@ bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
 
 // ____________________________________________________________________________
 CsvWriter Writer::getFeedInfoCsvw(std::ostream* os) {
-  return CsvWriter(os, {"feed_publisher_name", "feed_publisher_url", "feed_lang",
-                      "feed_start_date", "feed_end_date", "feed_version"});
+  return CsvWriter(os,
+                   {"feed_publisher_name", "feed_publisher_url", "feed_lang",
+                    "feed_start_date", "feed_end_date", "feed_version"});
 }
 
 // ____________________________________________________________________________
@@ -423,7 +424,7 @@ CsvWriter Writer::getFaresCsvw(std::ostream* os) {
 // ____________________________________________________________________________
 bool Writer::writeFare(const gtfs::flat::Fare& t, CsvWriter* csvw) const {
   csvw->writeString(t.id);
-  csvw->writeDouble(t.price);
+  csvw->writeDouble(t.price, 2);
   csvw->writeString(t.currencyType);
   csvw->writeInt(t.paymentMethod);
   csvw->writeInt(t.numTransfers);

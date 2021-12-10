@@ -31,6 +31,7 @@ class CsvWriter {
   CsvWriter(std::ostream* str, const HeaderList& headers);
 
   void writeDouble(double d);
+  void writeDouble(double d, size_t digits);
   void writeString(const std::string& str);
   void writeInt(int i);
   void skip();
@@ -49,6 +50,8 @@ class CsvWriter {
   void writeRawString(const std::string& str);
   void writeStrArr(const std::vector<std::string>& arr);
   void writeHeader();
+
+  int pow10(int i) const;
 
   std::string escStr(const std::string& str) const;
 };
