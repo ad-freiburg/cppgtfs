@@ -492,9 +492,9 @@ inline bool Parser::nextRoute(CsvParser* csvp, gtfs::flat::Route* r,
     r->type = getRouteType(*csvp, flds.routeTypeFld,
                            getRangeInteger(*csvp, flds.routeTypeFld, 0, 1702));
     r->url = getString(*csvp, flds.routeUrlFld, "");
-    r->color = getColorFromHexString(*csvp, flds.routeColorFld, "FFFFFF");
+    r->color = getColorFromHexString(*csvp, flds.routeColorFld, "");
     r->text_color =
-        getColorFromHexString(*csvp, flds.routeTextColorFld, "000000");
+        getColorFromHexString(*csvp, flds.routeTextColorFld, "");
 
     return true;
   }
@@ -1304,6 +1304,8 @@ uint32_t Parser::getColorFromHexString(const CsvParser& csv, size_t field,
   }
 
   if (color_string.empty()) color_string = def;
+
+  if (color_string.empty()) return std::numeric_limits<uint32_t>::max();
 
   size_t chars_processed = 0;
   uint32_t ret = 0;

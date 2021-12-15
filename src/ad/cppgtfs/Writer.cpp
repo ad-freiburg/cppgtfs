@@ -330,8 +330,11 @@ bool Writer::writeRoute(const gtfs::flat::Route& s, CsvWriter* csvw) const {
   csvw->writeString(s.desc);
   csvw->writeInt(s.type);
   csvw->writeString(s.url);
-  csvw->writeString(gtfs::flat::Route::getHexColorString(s.color));
-  csvw->writeString(gtfs::flat::Route::getHexColorString(s.text_color));
+
+  auto colorStr = gtfs::flat::Route::getHexColorString(s.color);
+  csvw->writeString(colorStr);
+  auto textColorStr = gtfs::flat::Route::getHexColorString(s.text_color);
+  csvw->writeString(textColorStr);
   csvw->flushLine();
 
   return true;

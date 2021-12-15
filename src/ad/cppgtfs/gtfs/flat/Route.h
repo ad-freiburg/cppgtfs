@@ -52,6 +52,7 @@ struct Route {
   uint32_t text_color;
 
   static std::string getHexColorString(uint32_t color) {
+    if (color == std::numeric_limits<uint32_t>::max()) return "";
     // using stringstream here, because it doesnt add "0x" to the front
     std::stringstream ss;
     ss << std::hex << std::setfill('0') << std::setw(6) << color;
