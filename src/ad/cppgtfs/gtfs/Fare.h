@@ -31,6 +31,7 @@ class FareRule {
         _containsId(containsId) {}
 
   typename RouteT::Ref getRoute() const { return _route; }
+  void setRoute(typename RouteT::Ref r) { _route = r; }
   const std::string& getOriginId() const { return _originId; }
   const std::string& getDestId() const { return _destId; }
   const std::string& getContainsId() const { return _containsId; }

@@ -21,6 +21,8 @@ namespace ad {
 namespace cppgtfs {
 namespace gtfs {
 
+const static uint32_t NO_COLOR = std::numeric_limits<uint32_t>::max();
+
 template <typename AgencyT>
 class RouteB {
  public:
@@ -76,7 +78,7 @@ class RouteB {
   flat::Route getFlat() const {
     flat::Route r;
     r.id = _id;
-    r.agency = _agency->getId();
+    r.agency = _agency == typename AgencyT::Ref() ? "" :  AgencyT::getId(_agency);
     r.short_name = _short_name;
     r.long_name = _long_name;
     r.desc = _desc;
@@ -87,7 +89,11 @@ class RouteB {
     return r;
   }
 
-  // TODO(patrick): implement setters
+  // TODO(patrick): implement all setters
+
+  void setId(const std::string& id) { _id = id; }
+  void setColor(uint32_t c) { _color = c; }
+  void setTextColor(uint32_t c) { _text_color = c; }
 
  private:
   string _id;

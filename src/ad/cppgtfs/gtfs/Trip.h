@@ -73,6 +73,8 @@ class TripB {
         _ba};
   };
 
+  void setRoute(typename RouteT::Ref r) { _route = r; }
+
  private:
   std::string _id;
   typename RouteT::Ref _route;
