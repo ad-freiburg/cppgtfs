@@ -5,9 +5,10 @@
 #ifndef AD_CPPGTFS_GTFS_FLAT_ROUTE_H_
 #define AD_CPPGTFS_GTFS_FLAT_ROUTE_H_
 
+#include <iomanip>
+#include <limits>
 #include <sstream>
 #include <string>
-#include <iomanip>
 
 namespace ad {
 namespace cppgtfs {
@@ -61,8 +62,8 @@ struct Route {
 
   static std::string getTypeString(flat::Route::TYPE t) {
     if (t == flat::Route::COACH) return "coach";
-    std::string names[8] = {"tram",     "subway",  "rail",      "bus",  "ferry",
-                            "cablecar", "gondola", "funicular"};
+    std::string names[8] = {"tram",  "subway",   "rail",    "bus",
+                            "ferry", "cablecar", "gondola", "funicular"};
     return names[t];
   }
 
