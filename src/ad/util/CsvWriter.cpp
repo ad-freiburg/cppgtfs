@@ -35,7 +35,7 @@ int CsvWriter::pow10(int i) const {
 // _____________________________________________________________________________
 void CsvWriter::writeDouble(double d, size_t digits) {
   double p = pow10(digits);
-  d = std::round(d * p) / p;
+  d = round(d * p) / p;
   writeDouble(d);
 }
 
