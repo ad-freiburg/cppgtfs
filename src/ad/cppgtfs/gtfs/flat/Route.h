@@ -9,6 +9,8 @@
 #include <limits>
 #include <sstream>
 #include <string>
+#include <set>
+#include <algorithm>
 
 namespace ad {
 namespace cppgtfs {
