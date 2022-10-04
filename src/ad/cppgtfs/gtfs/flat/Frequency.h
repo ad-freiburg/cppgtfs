@@ -23,7 +23,7 @@ struct FrequencyFlds {
 struct Frequency {
   std::string tripId;
   Time startTime, endTime;
-  uint16_t headwaySecs;
+  uint32_t headwaySecs;
   bool exactTimes;
 };
 

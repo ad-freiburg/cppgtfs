@@ -104,7 +104,7 @@ inline bool Parser::nextFrequency(CsvParser* csvp, gtfs::flat::Frequency* r,
     r->tripId = getString(*csvp, flds.tripIdFld);
     r->startTime = getTime(*csvp, flds.startTimeFld);
     r->endTime = getTime(*csvp, flds.endTimeFld);
-    r->headwaySecs = getRangeInteger(*csvp, flds.headwaySecsFld, 0, UINT16_MAX);
+    r->headwaySecs = getRangeInteger(*csvp, flds.headwaySecsFld, 0, UINT32_MAX);
     r->exactTimes = getRangeInteger(*csvp, flds.exactTimesFld, 0, 1, 0);
     return true;
   }
