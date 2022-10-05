@@ -25,7 +25,9 @@ struct Transfer {
     RECOMMENDED = 0,
     TIMED = 1,
     MIN_TIME = 2,
-    NO_TRANSFER = 3
+    NO_TRANSFER = 3,
+    IN_SEAT = 4,
+    NO_IN_SEAT = 5
   };
 
   std::string fromStop;

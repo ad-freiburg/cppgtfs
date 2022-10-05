@@ -27,6 +27,7 @@ struct RouteFlds {
   size_t agencyIdFld;
   size_t routeColorFld;
   size_t routeTextColorFld;
+  size_t routeSortOrderFld;
 };
 
 struct Route {
@@ -53,6 +54,7 @@ struct Route {
   std::string url;
   uint32_t color;
   uint32_t text_color;
+  size_t sort_order;
 
   static std::string getHexColorString(uint32_t color) {
     if (color == std::numeric_limits<uint32_t>::max()) return "";
@@ -193,8 +195,7 @@ struct Route {
       case 1108:
       case 1109:
       case 1110:
-      case 1111:
-      case 1112:
+      case 1111: case 1112:
       case 1113:
       case 1114:
         return Route::TYPE::GONDOLA;

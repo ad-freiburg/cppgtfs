@@ -45,7 +45,7 @@ inline bool Parser::nextTransfer(CsvParser* csvp, gtfs::flat::Transfer* t,
     t->fromStop = getString(*csvp, flds.fromStopIdFld);
     t->toStop = getString(*csvp, flds.toStopIdFld);
     t->type = static_cast<gtfs::flat::Transfer::TYPE>(
-        getRangeInteger(*csvp, flds.transferTypeFld, 0, 3, 0));
+        getRangeInteger(*csvp, flds.transferTypeFld, 0, 5, 0));
     t->tTime =
         getRangeInteger(*csvp, flds.minTransferTimeFld, 0, UINT32_MAX, -1);
     return true;
@@ -488,6 +488,7 @@ inline gtfs::flat::RouteFlds Parser::getRouteFlds(CsvParser* csvp) {
   r.agencyIdFld = csvp->getOptFieldIndex("agency_id");
   r.routeColorFld = csvp->getOptFieldIndex("route_color");
   r.routeTextColorFld = csvp->getOptFieldIndex("route_text_color");
+  r.routeSortOrderFld = csvp->getOptFieldIndex("route_sort_order");
   return r;
 }
 
@@ -505,7 +506,9 @@ inline bool Parser::nextRoute(CsvParser* csvp, gtfs::flat::Route* r,
     r->url = getString(*csvp, flds.routeUrlFld, "");
     r->color = getColorFromHexString(*csvp, flds.routeColorFld, "");
     r->text_color = getColorFromHexString(*csvp, flds.routeTextColorFld, "");
-
+    r->sort_order = getRangeInteger(*csvp, flds.routeSortOrderFld, 0,
+                                    std::numeric_limits<int64_t>::max(),
+                                    std::numeric_limits<int64_t>::max());
     return true;
   }
 
@@ -533,9 +536,9 @@ void Parser::parseRoutes(gtfs::FEEDB* targetFeed, std::istream* s) const {
       }
     }
 
-    if (!targetFeed->getRoutes().add(RouteT(fr.id, routeAgency, fr.short_name,
-                                            fr.long_name, fr.desc, fr.type,
-                                            fr.url, fr.color, fr.text_color))) {
+    if (!targetFeed->getRoutes().add(
+            RouteT(fr.id, routeAgency, fr.short_name, fr.long_name, fr.desc,
+                   fr.type, fr.url, fr.color, fr.text_color, fr.sort_order))) {
       std::stringstream msg;
       msg << "'route_id' must be dataset unique. Collision with id '" << fr.id
           << "')";

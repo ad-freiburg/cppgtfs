@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <utility>
+
 #include "Writer.h"
 #include "ad/util/CsvWriter.h"
 #include "gtfs/Shape.h"
@@ -335,6 +336,12 @@ bool Writer::writeRoute(const gtfs::flat::Route& s, CsvWriter* csvw) const {
   csvw->writeString(colorStr);
   auto textColorStr = gtfs::flat::Route::getHexColorString(s.text_color);
   csvw->writeString(textColorStr);
+
+  if (s.sort_order != std::numeric_limits<size_t>::max())
+    csvw->writeInt(s.sort_order);
+  else
+    csvw->skip();
+
   csvw->flushLine();
 
   return true;
@@ -342,9 +349,10 @@ bool Writer::writeRoute(const gtfs::flat::Route& s, CsvWriter* csvw) const {
 
 // ____________________________________________________________________________
 CsvWriter Writer::getRoutesCsvw(std::ostream* os) {
-  return CsvWriter(os, {"route_id", "agency_id", "route_short_name",
-                        "route_long_name", "route_desc", "route_type",
-                        "route_url", "route_color", "route_text_color"});
+  return CsvWriter(
+      os, {"route_id", "agency_id", "route_short_name", "route_long_name",
+           "route_desc", "route_type", "route_url", "route_color",
+           "route_text_color", "route_sort_order"});
 }
 
 // ____________________________________________________________________________

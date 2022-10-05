@@ -36,7 +36,7 @@ class RouteB {
   RouteB(const string& id, typename AgencyT::Ref agency,
          const string& short_name, const string& long_name, const string& desc,
          flat::Route::TYPE type, const string& url, uint32_t color,
-         uint32_t text_color)
+         uint32_t text_color, size_t sort_order)
       : _id(id),
         _agency(agency),
         _short_name(short_name),
@@ -45,7 +45,8 @@ class RouteB {
         _type(type),
         _url(url),
         _color(color),
-        _text_color(text_color) {}
+        _text_color(text_color),
+        _sort_order(sort_order) {}
 
   const std::string& getId() const { return _id; }
 
@@ -75,6 +76,8 @@ class RouteB {
     return flat::Route::getHexColorString(_text_color);
   }
 
+  size_t getSortOrder() const { return _sort_order; }
+
   flat::Route getFlat() const {
     flat::Route r;
     r.id = _id;
@@ -86,6 +89,7 @@ class RouteB {
     r.url = _url;
     r.color = _color;
     r.text_color = _text_color;
+    r.sort_order = _sort_order;
     return r;
   }
 
@@ -105,6 +109,7 @@ class RouteB {
   string _url;
   uint32_t _color;
   uint32_t _text_color;
+  size_t _sort_order;
 };
 
 typedef RouteB<Agency> Route;
