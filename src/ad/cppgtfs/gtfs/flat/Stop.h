@@ -6,6 +6,7 @@
 #define AD_CPPGTFS_GTFS_FLAT_STOP_H_
 
 #include <stdint.h>
+
 #include <cassert>
 #include <string>
 
@@ -31,7 +32,13 @@ struct StopFlds {
 };
 
 struct Stop {
-  enum LOCATION_TYPE : uint8_t { STOP = 0, STATION = 1, STATION_ENTRANCE = 2 };
+  enum LOCATION_TYPE : uint8_t {
+    STOP = 0,
+    STATION = 1,
+    STATION_ENTRANCE = 2,
+    GENERIC_NODE = 3,
+    BOARDING_AREA = 4
+  };
 
   enum WHEELCHAIR_BOARDING : uint8_t {
     NO_INFORMATION = 0,

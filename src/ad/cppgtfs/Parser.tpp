@@ -386,21 +386,32 @@ inline gtfs::flat::StopFlds Parser::getStopFlds(CsvParser* csvp) {
 inline bool Parser::nextStop(CsvParser* csvp, gtfs::flat::Stop* s,
                              const gtfs::flat::StopFlds& flds) const {
   if (csvp->readNextLine()) {
+    s->location_type = static_cast<gtfs::flat::Stop::LOCATION_TYPE>(
+        getRangeInteger(*csvp, flds.locationTypeFld, 0, 4, 0));
     s->id = getString(*csvp, flds.stopIdFld);
     s->code = getString(*csvp, flds.stopCodeFld, "");
-    s->name = getString(*csvp, flds.stopNameFld);
+    if (s->location_type < 3) {
+      s->name = getString(*csvp, flds.stopNameFld);
+    } else {
+      s->name = getString(*csvp, flds.stopNameFld, "");
+    }
     s->desc = getString(*csvp, flds.stopDescFld, "");
     s->zone_id = getString(*csvp, flds.zoneIdFld, "");
     s->stop_url = getString(*csvp, flds.stopUrlFld, "");
     s->stop_timezone = getString(*csvp, flds.stopTimezoneFld, "");
     s->platform_code = getString(*csvp, flds.platformCodeFld, "");
     s->parent_station = getString(*csvp, flds.parentStationFld, "");
-    s->lat = getDouble(*csvp, flds.stopLatFld);
-    s->lng = getDouble(*csvp, flds.stopLonFld);
+    if (s->location_type < 3) {
+      s->lat = getDouble(*csvp, flds.stopLatFld);
+      s->lng = getDouble(*csvp, flds.stopLonFld);
+    } else {
+      s->lat = getDouble(*csvp, flds.stopLatFld,
+                         std::numeric_limits<double>::quiet_NaN());
+      s->lng = getDouble(*csvp, flds.stopLonFld,
+                         std::numeric_limits<double>::quiet_NaN());
+    }
     s->wheelchair_boarding = static_cast<gtfs::flat::Stop::WHEELCHAIR_BOARDING>(
         getRangeInteger(*csvp, flds.wheelchairBoardingFld, 0, 2, 0));
-    s->location_type = static_cast<gtfs::flat::Stop::LOCATION_TYPE>(
-        getRangeInteger(*csvp, flds.locationTypeFld, 0, 2, 0));
 
     return true;
   }
@@ -493,8 +504,7 @@ inline bool Parser::nextRoute(CsvParser* csvp, gtfs::flat::Route* r,
                            getRangeInteger(*csvp, flds.routeTypeFld, 0, 1702));
     r->url = getString(*csvp, flds.routeUrlFld, "");
     r->color = getColorFromHexString(*csvp, flds.routeColorFld, "");
-    r->text_color =
-        getColorFromHexString(*csvp, flds.routeTextColorFld, "");
+    r->text_color = getColorFromHexString(*csvp, flds.routeTextColorFld, "");
 
     return true;
   }
