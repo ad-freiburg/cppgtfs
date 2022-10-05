@@ -119,6 +119,14 @@ bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
     fs.close();
   }
 
+  if (sourceFeed->getLevels().size()) {
+    curFile = gtfsPath + "/levels.txt";
+    fs.open(curFile.c_str());
+    if (!fs.good()) cannotWrite(curFile);
+    writeLevels(sourceFeed, &fs);
+    fs.close();
+  }
+
   return true;
 }
 
@@ -613,6 +621,34 @@ bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
                                            f.hasExactTimes()},
                      &csvw);
     }
+  }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+CsvWriter Writer::getLevelCsvw(std::ostream* os) {
+  return CsvWriter(os, {"level_id", "level_index", "level_name"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeLevel(const gtfs::flat::Level& l, CsvWriter* csvw) const {
+  csvw->writeString(l.id);
+  csvw->writeDouble(l.index);
+  if (l.name.size())
+    csvw->writeString(l.name);
+  else
+    csvw->skip();
+  csvw->flushLine();
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeLevels(gtfs::Feed* sourceFeed, std::ostream* s) const {
+  CsvWriter csvw = getLevelCsvw(s);
+  for (const auto& a : sourceFeed->getLevels()) {
+    writeLevel(a.second->getFlat(), &csvw);
   }
 
   return true;

@@ -12,6 +12,14 @@ typename FEEDB::Agencies& FEEDB::getAgencies() { return _agencies; }
 
 // ____________________________________________________________________________
 FEEDTPL
+const typename FEEDB::Levels& FEEDB::getLevels() const { return _levels; }
+
+// ____________________________________________________________________________
+FEEDTPL
+typename FEEDB::Levels& FEEDB::getLevels() { return _levels; }
+
+// ____________________________________________________________________________
+FEEDTPL
 const typename FEEDB::Stops& FEEDB::getStops() const { return _stops; }
 
 // ____________________________________________________________________________

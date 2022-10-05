@@ -24,6 +24,7 @@ FEEDTPL bool Parser::parse(gtfs::FEEDB* targetFeed,
   parseTransfers(targetFeed, path);
   parseFareAttributes(targetFeed, path);
   parseFareRules(targetFeed, path);
+  parseLevels(targetFeed, path);
 
   return true;
 }
@@ -334,6 +335,51 @@ inline bool Parser::nextAgency(CsvParser* csvp, gtfs::flat::Agency* a,
 }
 
 // ____________________________________________________________________________
+inline bool Parser::nextLevel(CsvParser* csvp, gtfs::flat::Level* a,
+                               const gtfs::flat::LevelFlds& flds) const {
+  if (csvp->readNextLine()) {
+    a->id = getString(*csvp, flds.levelIdFld);
+    a->name = getString(*csvp, flds.levelNameFld, "");
+    a->index = getDouble(*csvp, flds.levelIndexFld);
+
+    return true;
+  }
+
+  return false;
+}
+
+// ____________________________________________________________________________
+inline gtfs::flat::LevelFlds Parser::getLevelFlds(CsvParser* csvp) {
+  gtfs::flat::LevelFlds r;
+  r.levelIdFld = csvp->getFieldIndex("level_id");
+  r.levelIndexFld = csvp->getFieldIndex("level_index");
+  r.levelNameFld = csvp->getOptFieldIndex("level_name");
+  return r;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void Parser::parseLevels(gtfs::FEEDB* targetFeed, std::istream* s) const {
+  CsvParser csvp(s);
+  typename LevelT::Ref a = (typename LevelT::Ref());
+  gtfs::flat::Level fa;
+  auto flds = getLevelFlds(&csvp);
+
+  while (nextLevel(&csvp, &fa, flds)) {
+    if ((typename LevelT::Ref()) ==
+        (a = targetFeed->getLevels().add(
+             gtfs::Level(fa.id, fa.index, fa.name)))) {
+      std::stringstream msg;
+      msg << "'level_id' must be dataset unique. Collision with id '"
+          << fa.id << "')";
+      throw ParserException(msg.str(), "level_id", csvp.getCurLine());
+    }
+  }
+
+  targetFeed->getLevels().finalize();
+}
+
+// ____________________________________________________________________________
 FEEDTPL
 void Parser::parseAgencies(gtfs::FEEDB* targetFeed, std::istream* s) const {
   CsvParser csvp(s);
@@ -348,7 +394,7 @@ void Parser::parseAgencies(gtfs::FEEDB* targetFeed, std::istream* s) const {
                           fa.phone, fa.fare_url, fa.agency_email)))) {
       std::stringstream msg;
       msg << "'agency_id' must be dataset unique. Collision with id '"
-          << a->getId() << "')";
+          << fa.id << "')";
       throw ParserException(msg.str(), "agency_id", csvp.getCurLine());
     }
   }
@@ -905,6 +951,29 @@ void Parser::parseFeedInfo(gtfs::FEEDB* targetFeed,
 
 // ____________________________________________________________________________
 FEEDTPL
+void Parser::parseLevels(gtfs::FEEDB* targetFeed,
+                           const std::string& path) const {
+  std::ifstream fs;
+  std::string curFile = path + "/levels.txt";
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseLevels(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
+  }
+}
+
+// ____________________________________________________________________________
+FEEDTPL
 void Parser::parseAgencies(gtfs::FEEDB* targetFeed,
                            const std::string& path) const {
   std::ifstream fs;
@@ -1411,7 +1480,6 @@ Time Parser::getTime(const CsvParser& csv, size_t field) const {
           "only non-negative hour-values up to 255 are "
           "supported.");
     if (*val != ':') {
-      std::cout << *val << std::endl;
       throw std::invalid_argument("invalid separator");
     }
 

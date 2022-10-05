@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 #include "Agency.h"
 #include "ContContainer.h"
 #include "Container.h"
@@ -20,22 +21,24 @@
 #include "Stop.h"
 #include "Transfer.h"
 #include "Trip.h"
+#include "Level.h"
 
-#define FEEDTPL                                                     \
-  template <typename AgencyT, typename RouteT, typename StopT,      \
-            typename ServiceT, template <typename> class StopTimeT, \
-            typename ShapeT, template <typename> class FareT,        \
-            template <typename> class AContainerT,                  \
-            template <typename> class RContainerT,                  \
-            template <typename> class SContainerT,                  \
-            template <typename> class StContainerT,                 \
-            template <typename> class TContainerT,                  \
-            template <typename> class ShContainerT,                 \
-            template <typename> class FContainerT>
-#define FEEDB                                                             \
-  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, FareT,       \
-        AContainerT, RContainerT, SContainerT, StContainerT, TContainerT, \
-        ShContainerT, FContainerT>
+#define FEEDTPL                                                                \
+  template <typename AgencyT, typename RouteT, typename StopT,                 \
+            typename ServiceT, template <typename> class StopTimeT,            \
+            typename ShapeT, template <typename> class FareT, typename LevelT, \
+            template <typename> class AContainerT,                             \
+            template <typename> class RContainerT,                             \
+            template <typename> class SContainerT,                             \
+            template <typename> class StContainerT,                            \
+            template <typename> class TContainerT,                             \
+            template <typename> class ShContainerT,                            \
+            template <typename> class FContainerT,                             \
+            template <typename> class LContainerT>
+#define FEEDB                                                       \
+  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, FareT, \
+        LevelT, AContainerT, RContainerT, SContainerT, StContainerT, \
+        TContainerT, ShContainerT, FContainerT, LContainerT>
 
 namespace ad {
 namespace cppgtfs {
@@ -50,6 +53,7 @@ class FeedB {
   typedef ShContainerT<ShapeT> Shapes;
   typedef SContainerT<ServiceT> Services;
   typedef FContainerT<FareT<RouteT>> Fares;
+  typedef LContainerT<LevelT> Levels;
   typedef std::vector<Transfer> Transfers;
   typedef std::set<std::string> Zones;
 
@@ -86,6 +90,9 @@ class FeedB {
   const Fares& getFares() const;
   Fares& getFares();
 
+  const Levels& getLevels() const;
+  Levels& getLevels();
+
   const std::string& getPublisherName() const;
   const std::string& getPublisherUrl() const;
   const std::string& getLang() const;
@@ -119,6 +126,7 @@ class FeedB {
   Transfers _transfers;
   Zones _zones;
   Fares _fares;
+  Levels _levels;
 
   double _maxLat, _maxLon, _minLat, _minLon;
 
@@ -126,12 +134,13 @@ class FeedB {
   ServiceDate _startDate, _endDate;
 };
 
-typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare, Container,
-              Container, Container, Container, Container, Container, Container>
+typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare, Level,
+              Container, Container, Container, Container, Container, Container,
+              Container, Container>
     Feed;
 typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare,
-              ContContainer, ContContainer, ContContainer, ContContainer,
-              ContContainer, ContContainer, ContContainer>
+              Level, ContContainer, ContContainer, ContContainer, ContContainer,
+              ContContainer, ContContainer, ContContainer, ContContainer>
     ContFeed;
 
 #include "Feed.tpp"

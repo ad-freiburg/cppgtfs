@@ -23,6 +23,7 @@
 #include "gtfs/flat/Service.h"
 #include "gtfs/flat/Shape.h"
 #include "gtfs/flat/Transfer.h"
+#include "gtfs/flat/Level.h"
 
 using std::string;
 using ad::util::CsvParser;
@@ -40,6 +41,7 @@ using ad::cppgtfs::gtfs::Fare;
 using ad::cppgtfs::gtfs::FareRule;
 using ad::cppgtfs::gtfs::Route;
 using ad::cppgtfs::gtfs::Stop;
+using ad::cppgtfs::gtfs::Level;
 
 // A GTFS parser
 
@@ -120,6 +122,10 @@ class Parser {
   inline bool nextAgency(CsvParser* csvp, gtfs::flat::Agency* a,
                          const gtfs::flat::AgencyFlds&) const;
 
+  inline static gtfs::flat::LevelFlds getLevelFlds(CsvParser* csvp);
+  inline bool nextLevel(CsvParser* csvp, gtfs::flat::Level* a,
+                         const gtfs::flat::LevelFlds&) const;
+
   inline static gtfs::flat::StopFlds getStopFlds(CsvParser* csvp);
   inline bool nextStop(CsvParser* csvp, gtfs::flat::Stop* s,
                        const gtfs::flat::StopFlds&) const;
@@ -169,6 +175,9 @@ class Parser {
   void parseAgencies(gtfs::FEEDB* targetFeed, const std::string& path) const;
 
   FEEDTPL
+  void parseLevels(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
   void parseStops(gtfs::FEEDB* targetFeed, const std::string& path) const;
 
   FEEDTPL
@@ -213,6 +222,9 @@ class Parser {
 
   FEEDTPL
   void parseAgencies(gtfs::FEEDB* targetFeed, std::istream*) const;
+
+  FEEDTPL
+  void parseLevels(gtfs::FEEDB* targetFeed, std::istream*) const;
 
   FEEDTPL
   void parseStops(gtfs::FEEDB* targetFeed, std::istream*) const;

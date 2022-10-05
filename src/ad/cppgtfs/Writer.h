@@ -100,6 +100,9 @@ class Writer {
   bool writeFareRule(const gtfs::flat::FareRule& ag, CsvWriter* csvw) const;
   bool writeFareRules(gtfs::Feed* f, std::ostream* os) const;
 
+  bool writeLevel(const gtfs::flat::Level& ag, CsvWriter* csvw) const;
+  bool writeLevels(gtfs::Feed* f, std::ostream* os) const;
+
   static void cannotWrite(const std::string& file);
 
   static CsvWriter getAgencyCsvw(std::ostream* os);
@@ -115,6 +118,7 @@ class Writer {
   static CsvWriter getTripsCsvw(std::ostream* os);
   static CsvWriter getStopTimesCsvw(std::ostream* os);
   static CsvWriter getFeedInfoCsvw(std::ostream* os);
+  static CsvWriter getLevelCsvw(std::ostream* os);
 };
 }  // namespace cppgtfs
 }  // namespace ad
