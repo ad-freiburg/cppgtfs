@@ -11,6 +11,7 @@
 #include <iostream>
 #include <istream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -27,6 +28,8 @@ using std::string;
  */
 namespace ad {
 namespace util {
+
+static const size_t BUFFER_S = 10000;
 
 class CsvParserException : public exception {
  public:
@@ -62,15 +65,19 @@ class CsvParser {
   // Default initialization.
   CsvParser();
 
+  virtual ~CsvParser();
+
   // Initializes the parser by opening the file and reading the table header.
   explicit CsvParser(std::istream* stream);
 
-  // Returns true iff same function of underlying stream returns true.
-  bool eof() const;
+  // Initializes the parser by opening the file and reading the table header.
+  explicit CsvParser(const std::string& path);
 
   // Read next line.
   // Returns true iff the line was read successfully.
   bool readNextLine();
+
+  virtual std::pair<size_t, size_t> fetchLine();
 
   // Getters for i-th column from current line. Prerequisite: i < _numColumns.
   // Second arguments are default values.
@@ -113,11 +120,10 @@ class CsvParser {
 
   const string getFieldName(size_t i) const;
 
- private:
-  int32_t _curLine;
+  virtual bool isGood() const;
 
-  // The handle to the file.
-  std::istream* _stream;
+ protected:
+  int32_t _curLine = 0;
 
   // Parses the header row and fills the header map.
   void parseHeader();
@@ -139,10 +145,17 @@ class CsvParser {
   // modified, quote-escaped strings
   std::vector<std::string> _currentModItems;
 
-  char _buff[10000] = {0};
+  char _buff[BUFFER_S] = {0};
 
   static double atof(const char* p, uint8_t mn, bool* fail);
   static uint32_t atoi(const char* p, bool* fail);
+ private:
+
+  // The handle to the file.
+  std::istream* _stream;
+
+  // Used internally if no external stream is provided
+  std::ifstream _ifstream;
 };
 }  // namespace util
 }  // namespace ad

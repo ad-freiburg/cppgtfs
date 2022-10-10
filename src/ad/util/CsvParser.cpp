@@ -8,8 +8,9 @@
 #include <cstring>
 #include <functional>
 #include <iostream>
-#include <string>
 #include <limits>
+#include <string>
+
 #include "CsvParser.h"
 
 using ad::util::CsvParser;
@@ -24,31 +25,58 @@ static int pow10[10] = {1,      10,      100,      1000,      10000,
 }  // namespace ad
 
 // _____________________________________________________________________________
-CsvParser::CsvParser() {}
+CsvParser::CsvParser() : _stream(0) {}
 
-CsvParser::CsvParser(std::istream* stream) : _curLine(0), _stream(stream) {
+// _____________________________________________________________________________
+CsvParser::~CsvParser() {}
+
+// _____________________________________________________________________________
+CsvParser::CsvParser(std::istream* stream) : _stream(stream) {
   readNextLine();
   parseHeader();
 }
 
 // _____________________________________________________________________________
-bool CsvParser::readNextLine() {
-  if (!_stream->good()) return false;
+CsvParser::CsvParser(const std::string& path) : _stream(&_ifstream) {
+  _ifstream.open(path);
+  readNextLine();
+  parseHeader();
+}
 
-  // TODO: error message if buffer was too small
-  _stream->getline(_buff, 10000);
+// _____________________________________________________________________________
+bool CsvParser::isGood() const {
+  return _stream != 0 && _stream->good();
+}
+
+// _____________________________________________________________________________
+std::pair<size_t, size_t> CsvParser::fetchLine() {
+  if (!_stream->good()) return {0, 0};
+
+  _stream->getline(_buff, BUFFER_S);
   size_t readN = _stream->gcount();
   _buff[readN] = 0;
 
-  // Remove new line characters
-  while (_buff[readN - 1] == '\r' || _buff[readN - 1] == '\n') {
-    _buff[readN - 1] = 0;
-    readN--;
-  }
+  return {0, readN};
+}
+
+// _____________________________________________________________________________
+bool CsvParser::readNextLine() {
+  auto range = fetchLine();
+  if (range.first >= range.second) return false;
 
   _curLine++;
 
-  if (readN == 0) return readNextLine();
+  size_t lineLen = range.second - range.first;
+  size_t s = range.first;
+
+  // Remove new line characters
+  while (_buff[s + lineLen - 1] == '\r' || _buff[s + lineLen - 1] == '\n') {
+    _buff[s + lineLen - 1] = 0;
+    lineLen--;
+  }
+
+  if (lineLen == 0) return readNextLine();
+
   size_t pos = 0;
   size_t lastPos = pos;
   bool firstChar = false;
@@ -57,20 +85,21 @@ bool CsvParser::readNextLine() {
   _currentItems.clear();
   _currentModItems.clear();
 
-  if (readN > 2 && static_cast<int>(_buff[0]) == -17 &&
-      static_cast<int>(_buff[1]) == -69 && static_cast<int>(_buff[2]) == -65) {
+  if (lineLen > 2 && static_cast<int>(_buff[s]) == -17 &&
+      static_cast<int>(_buff[s + 1]) == -69 &&
+      static_cast<int>(_buff[s + 2]) == -65) {
     pos = 3;
     lastPos = pos;
   }
 
-  while (pos < readN) {
-    if (!firstChar && std::isspace(_buff[pos])) {
+  while (pos < lineLen) {
+    if (!firstChar && std::isspace(_buff[s + pos])) {
       pos++;
       lastPos = pos;
       continue;
     }
 
-    if (_buff[pos] == '"' && !esc) {
+    if (_buff[s + pos] == '"' && !esc) {
       esc = true;
       pos++;
       lastPos = pos;
@@ -80,51 +109,51 @@ bool CsvParser::readNextLine() {
     firstChar = true;
 
     if (!esc) {
-      const char* c = strchr(_buff + pos, ',');
+      const char* c = strchr(_buff + s + pos, ',');
       if (c)
-        pos = c - _buff;
+        pos = (c - _buff) - s;
       else
-        pos = readN - 1;
+        pos = lineLen - 1;
     } else {
-      const char* c = strchr(_buff + pos, '"');
+      const char* c = strchr(_buff + s + pos, '"');
       if (c)
-        pos = c - _buff;
+        pos = (c - _buff) - s;
       else
-        pos = readN - 1;
+        pos = lineLen - 1;
 
-      if (pos < readN - 1 && _buff[pos + 1] == '"') {
+      if (pos < lineLen - 1 && _buff[pos + s + 1] == '"') {
         pos += 2;
         esc_quotes_found++;
         continue;
       } else {
         // we end this field here, because of the closing quotes
         // see CSV spec at http://tools.ietf.org/html/rfc4180#page-2
-        _buff[pos] = 0;
+        _buff[s + pos] = 0;
         esc = false;
         firstChar = false;
 
-        const char* c = strchr(_buff + pos + 1, ',');
+        const char* c = strchr(_buff + s + pos + 1, ',');
         if (c)
-          pos = c - _buff;
+          pos = (c - _buff) - s;
         else
-          pos = readN - 1;
+          pos = lineLen - 1;
       }
     }
 
-    if (_buff[pos] == ',') {
-      _buff[pos] = 0;
+    if (_buff[s + pos] == ',') {
+      _buff[s + pos] = 0;
       firstChar = false;
     }
 
     if (!esc_quotes_found) {
-      _currentItems.push_back(inlineRightTrim(_buff + lastPos));
+      _currentItems.push_back(inlineRightTrim(_buff + s + lastPos));
     } else {
       size_t p = -1;
 
       // we have to modify to string (that is, we have to remove
       // characters. create a copy of this item
       // on the line-wise modified vector
-      _currentModItems.push_back(_buff + lastPos);
+      _currentModItems.push_back(_buff + s + lastPos);
 
       while (esc_quotes_found) {
         p = _currentModItems.back().find("\"\"", p + 1);

@@ -5,4 +5,4 @@ include_directories(
 )
 
 add_library(ad_cppgtfs ${ad_cppgtfs_SOURCES})
-target_link_libraries(ad_cppgtfs ad_csvparser)
+target_link_libraries(ad_cppgtfs ad_csvparser ${LIBZIP_LIBRARY})
