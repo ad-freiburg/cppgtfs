@@ -25,6 +25,7 @@
 #include "gtfs/flat/Agency.h"
 #include "gtfs/flat/Frequency.h"
 #include "gtfs/flat/Level.h"
+#include "gtfs/flat/Pathway.h"
 #include "gtfs/flat/Route.h"
 #include "gtfs/flat/Service.h"
 #include "gtfs/flat/Shape.h"
@@ -34,6 +35,7 @@ using ad::cppgtfs::gtfs::Agency;
 using ad::cppgtfs::gtfs::Fare;
 using ad::cppgtfs::gtfs::FareRule;
 using ad::cppgtfs::gtfs::Level;
+using ad::cppgtfs::gtfs::Pathway;
 using ad::cppgtfs::gtfs::Route;
 using ad::cppgtfs::gtfs::Service;
 using ad::cppgtfs::gtfs::ServiceDate;
@@ -103,7 +105,7 @@ class Parser {
     } else {
       // we parse from a file, assume it is a ZIP file
       int zipErr;
-      _za = zip_open(path.c_str(), 0, &zipErr);
+      _za = zip_open(path.c_str(), ZIP_RDONLY, &zipErr);
 
       if (_za == 0) {
         char errBuf[100];
@@ -154,6 +156,10 @@ class Parser {
   inline static gtfs::flat::LevelFlds getLevelFlds(CsvParser* csvp);
   inline bool nextLevel(CsvParser* csvp, gtfs::flat::Level* a,
                         const gtfs::flat::LevelFlds&) const;
+
+  inline static gtfs::flat::PathwayFlds getPathwayFlds(CsvParser* csvp);
+  inline bool nextPathway(CsvParser* csvp, gtfs::flat::Pathway* a,
+                        const gtfs::flat::PathwayFlds&) const;
 
   inline static gtfs::flat::StopFlds getStopFlds(CsvParser* csvp);
   inline bool nextStop(CsvParser* csvp, gtfs::flat::Stop* s,
@@ -207,6 +213,9 @@ class Parser {
   void parseLevels(gtfs::FEEDB* targetFeed) const;
 
   FEEDTPL
+  void parsePathways(gtfs::FEEDB* targetFeed) const;
+
+  FEEDTPL
   void parseStops(gtfs::FEEDB* targetFeed) const;
 
   FEEDTPL
@@ -256,6 +265,9 @@ class Parser {
 
   FEEDTPL
   void parseLevels(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;
+
+  FEEDTPL
+  void parsePathways(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;
 
   FEEDTPL
   void parseStops(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;

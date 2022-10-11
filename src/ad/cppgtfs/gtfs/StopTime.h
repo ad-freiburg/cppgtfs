@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
 #include "Stop.h"
 #include "flat/StopTime.h"
 
@@ -28,7 +29,8 @@ class StopTime {
 
   StopTime(const Time& at, const Time& dt, typename StopT::Ref s, uint32_t seq,
            const std::string& hs, PU_DO_TYPE put, PU_DO_TYPE dot,
-           float distTrav, bool isTp)
+           float distTrav, bool isTp, uint8_t continuousDropOff,
+           uint8_t continuousPickup)
       : _at(at),
         _dt(dt),
         _s(s),
@@ -37,7 +39,9 @@ class StopTime {
         _pickupType(put),
         _dropOffType(dot),
         _isTimepoint(isTp),
-        _shapeDistTravelled(distTrav) {}
+        _shapeDistTravelled(distTrav),
+        _continuousDropOff(continuousDropOff),
+        _continuousPickup(continuousPickup) {}
 
   const Time& getArrivalTime() const { return _at; }
   const Time& getDepartureTime() const { return _dt; }
@@ -52,6 +56,14 @@ class StopTime {
 
   PU_DO_TYPE getDropOffType() const {
     return static_cast<PU_DO_TYPE>(_dropOffType);
+  }
+
+  uint8_t getContinuousDropOff() const {
+    return _continuousDropOff;
+  }
+
+  uint8_t getContinuousPickup() const {
+    return _continuousPickup;
   }
 
   float getShapeDistanceTravelled() const { return _shapeDistTravelled; }
@@ -70,6 +82,8 @@ class StopTime {
   uint8_t _dropOffType : 2;
   bool _isTimepoint : 1;
   float _shapeDistTravelled;
+  uint8_t _continuousDropOff;
+  uint8_t _continuousPickup;
 };
 
 template <typename StopTimeT>

@@ -29,7 +29,7 @@ using std::string;
 namespace ad {
 namespace util {
 
-static const size_t BUFFER_S = 10000;
+static const size_t BUFFER_S = 50000;
 
 class CsvParserException : public exception {
  public:

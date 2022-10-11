@@ -9,6 +9,7 @@
 #include <cassert>
 #include <string>
 #include "flat/Stop.h"
+#include "Level.h"
 
 using std::exception;
 using std::string;
@@ -31,7 +32,7 @@ class Stop {
        const string& stop_url, flat::Stop::LOCATION_TYPE location_type,
        Stop* parent_station, const string& stop_timezone,
        flat::Stop::WHEELCHAIR_BOARDING wheelchair_boarding,
-       const std::string& platform_code)
+       const std::string& platform_code, Level* level)
       : _id(id),
         _code(code),
         _name(name),
@@ -44,7 +45,8 @@ class Stop {
         _lat(lat),
         _lng(lng),
         _wheelchair_boarding(wheelchair_boarding),
-        _location_type(location_type) {}
+        _location_type(location_type),
+        _level(level) {}
 
   const std::string& getId() const { return _id; }
 
@@ -78,6 +80,8 @@ class Stop {
     return _wheelchair_boarding;
   }
 
+  Level* getLevel() { return _level; }
+
   flat::Stop getFlat() const {
     flat::Stop r;
     r.id = _id;
@@ -93,6 +97,7 @@ class Stop {
     r.lng = _lng;
     r.wheelchair_boarding = _wheelchair_boarding;
     r.location_type = _location_type;
+    r.level_id = (_level ?  _level->getId() : "");
     return r;
   }
 
@@ -105,6 +110,7 @@ class Stop {
   float _lat, _lng;
   flat::Stop::WHEELCHAIR_BOARDING _wheelchair_boarding;
   flat::Stop::LOCATION_TYPE _location_type;
+  Level* _level;
 };
 
 }  // namespace gtfs

@@ -15,30 +15,32 @@
 #include "ContContainer.h"
 #include "Container.h"
 #include "Fare.h"
+#include "Level.h"
+#include "Pathway.h"
 #include "Route.h"
 #include "Service.h"
 #include "Shape.h"
 #include "Stop.h"
 #include "Transfer.h"
 #include "Trip.h"
-#include "Level.h"
 
 #define FEEDTPL                                                                \
   template <typename AgencyT, typename RouteT, typename StopT,                 \
             typename ServiceT, template <typename> class StopTimeT,            \
             typename ShapeT, template <typename> class FareT, typename LevelT, \
-            template <typename> class AContainerT,                             \
+            typename PathwayT, template <typename> class AContainerT,          \
             template <typename> class RContainerT,                             \
             template <typename> class SContainerT,                             \
             template <typename> class StContainerT,                            \
             template <typename> class TContainerT,                             \
             template <typename> class ShContainerT,                            \
             template <typename> class FContainerT,                             \
-            template <typename> class LContainerT>
-#define FEEDB                                                       \
-  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, FareT, \
-        LevelT, AContainerT, RContainerT, SContainerT, StContainerT, \
-        TContainerT, ShContainerT, FContainerT, LContainerT>
+            template <typename> class LContainerT,                             \
+            template <typename> class PContainerT>
+#define FEEDB                                                               \
+  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, FareT, LevelT, \
+        PathwayT, AContainerT, RContainerT, SContainerT, StContainerT,      \
+        TContainerT, ShContainerT, FContainerT, LContainerT, PContainerT>
 
 namespace ad {
 namespace cppgtfs {
@@ -54,6 +56,7 @@ class FeedB {
   typedef SContainerT<ServiceT> Services;
   typedef FContainerT<FareT<RouteT>> Fares;
   typedef LContainerT<LevelT> Levels;
+  typedef PContainerT<PathwayT> Pathways;
   typedef std::vector<Transfer> Transfers;
   typedef std::set<std::string> Zones;
 
@@ -93,6 +96,9 @@ class FeedB {
   const Levels& getLevels() const;
   Levels& getLevels();
 
+  const Pathways& getPathways() const;
+  Pathways& getPathways();
+
   const std::string& getPublisherName() const;
   const std::string& getPublisherUrl() const;
   const std::string& getLang() const;
@@ -127,6 +133,7 @@ class FeedB {
   Zones _zones;
   Fares _fares;
   Levels _levels;
+  Pathways _pathways;
 
   double _maxLat, _maxLon, _minLat, _minLon;
 
@@ -135,12 +142,13 @@ class FeedB {
 };
 
 typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare, Level,
-              Container, Container, Container, Container, Container, Container,
-              Container, Container>
+              Pathway, Container, Container, Container, Container, Container,
+              Container, Container, Container, Container>
     Feed;
-typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare,
-              Level, ContContainer, ContContainer, ContContainer, ContContainer,
-              ContContainer, ContContainer, ContContainer, ContContainer>
+typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare, Level,
+              Pathway, ContContainer, ContContainer, ContContainer,
+              ContContainer, ContContainer, ContContainer, ContContainer,
+              ContContainer, ContContainer>
     ContFeed;
 
 #include "Feed.tpp"

@@ -28,6 +28,8 @@ struct RouteFlds {
   size_t routeColorFld;
   size_t routeTextColorFld;
   size_t routeSortOrderFld;
+  size_t continuousDropOffFld;
+  size_t continuousPickupFld;
 };
 
 struct Route {
@@ -55,6 +57,8 @@ struct Route {
   uint32_t color;
   uint32_t text_color;
   int64_t sort_order;
+  uint8_t continuous_pickup;
+  uint8_t continuous_drop_off;
 
   static std::string getHexColorString(uint32_t color) {
     if (color == std::numeric_limits<uint32_t>::max()) return "";

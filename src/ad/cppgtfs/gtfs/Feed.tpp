@@ -20,6 +20,14 @@ typename FEEDB::Levels& FEEDB::getLevels() { return _levels; }
 
 // ____________________________________________________________________________
 FEEDTPL
+const typename FEEDB::Pathways& FEEDB::getPathways() const { return _pathways; }
+
+// ____________________________________________________________________________
+FEEDTPL
+typename FEEDB::Pathways& FEEDB::getPathways() { return _pathways; }
+
+// ____________________________________________________________________________
+FEEDTPL
 const typename FEEDB::Stops& FEEDB::getStops() const { return _stops; }
 
 // ____________________________________________________________________________

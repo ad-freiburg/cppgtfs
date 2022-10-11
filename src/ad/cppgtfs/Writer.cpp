@@ -2,6 +2,7 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
+#include <cmath>
 #include <fstream>
 #include <map>
 #include <string>
@@ -127,6 +128,14 @@ bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
     fs.close();
   }
 
+  if (sourceFeed->getPathways().size()) {
+    curFile = gtfsPath + "/pathways.txt";
+    fs.open(curFile.c_str());
+    if (!fs.good()) cannotWrite(curFile);
+    writePathways(sourceFeed, &fs);
+    fs.close();
+  }
+
   return true;
 }
 
@@ -165,9 +174,10 @@ bool Writer::writeAgencies(gtfs::Feed* sourceFeed, std::ostream* s) const {
 // ____________________________________________________________________________
 std::unique_ptr<CsvWriter> Writer::getStopsCsvw(std::ostream* os) {
   return std::unique_ptr<CsvWriter>(new CsvWriter(
-      os, {"stop_id", "stop_code", "stop_name", "stop_desc", "stop_lat",
-           "stop_lon", "zone_id", "stop_url", "location_type", "parent_station",
-           "stop_timezone", "wheelchair_boarding", "platform_code"}));
+      os,
+      {"stop_id", "stop_code", "stop_name", "stop_desc", "stop_lat", "stop_lon",
+       "zone_id", "stop_url", "location_type", "parent_station",
+       "stop_timezone", "wheelchair_boarding", "platform_code", "level_id"}));
 }
 
 // ____________________________________________________________________________
@@ -176,8 +186,13 @@ bool Writer::writeStop(const gtfs::flat::Stop& s, CsvWriter* csvw) const {
   csvw->writeString(s.code);
   csvw->writeString(s.name);
   csvw->writeString(s.desc);
-  csvw->writeDouble(s.lat, 6);
-  csvw->writeDouble(s.lng, 6);
+  if (fabs(s.lat) > 90 || fabs(s.lng) > 180) {
+    csvw->skip();
+    csvw->skip();
+  } else {
+    csvw->writeDouble(s.lat, 6);
+    csvw->writeDouble(s.lng, 6);
+  }
   csvw->writeString(s.zone_id);
   csvw->writeString(s.stop_url);
   csvw->writeInt(s.location_type);
@@ -188,6 +203,7 @@ bool Writer::writeStop(const gtfs::flat::Stop& s, CsvWriter* csvw) const {
   csvw->writeString(s.stop_timezone);
   csvw->writeInt(s.wheelchair_boarding);
   csvw->writeString(s.platform_code);
+  csvw->writeString(s.level_id);
   csvw->flushLine();
 
   return true;
@@ -251,7 +267,7 @@ std::unique_ptr<CsvWriter> Writer::getStopTimesCsvw(std::ostream* os) {
   return std::unique_ptr<CsvWriter>(
       new CsvWriter(os, {"trip_id", "arrival_time", "departure_time", "stop_id",
                          "stop_sequence", "stop_headsign", "pickup_type",
-                         "drop_off_type", "shape_dist_traveled", "timepoint"}));
+                         "drop_off_type", "shape_dist_traveled", "timepoint", "continuous_pickup", "continuous_drop_off"}));
 }
 
 // ____________________________________________________________________________
@@ -265,11 +281,23 @@ bool Writer::writeStopTime(const gtfs::flat::StopTime& st,
   csvw->writeString(st.headsign);
   csvw->writeInt(st.pickupType);
   csvw->writeInt(st.dropOffType);
+
   if (st.shapeDistTravelled > -.5)
     csvw->writeDouble(st.shapeDistTravelled, 3);
   else
     csvw->skip();
   csvw->writeInt(st.isTimepoint);
+
+  if (st.continuousPickup != 1)
+    csvw->writeInt(st.continuousPickup);
+  else
+    csvw->skip();
+
+  if (st.continuousDropOff != 1)
+    csvw->writeInt(st.continuousDropOff);
+  else
+    csvw->skip();
+
   csvw->flushLine();
   return true;
 }
@@ -285,7 +313,8 @@ bool Writer::writeStopTimes(gtfs::Feed* sourceFeed, std::ostream* s) const {
                                t.second->getId(), p.getStop()->getId(),
                                p.getSeq(), p.getHeadsign(), p.getPickupType(),
                                p.getDropOffType(), p.isTimepoint(),
-                               p.getShapeDistanceTravelled()},
+                               p.getShapeDistanceTravelled(),
+                               p.getContinuousDropOff(), p.getContinuousPickup()},
           csvw.get());
     }
   }
@@ -353,6 +382,16 @@ bool Writer::writeRoute(const gtfs::flat::Route& s, CsvWriter* csvw) const {
   else
     csvw->skip();
 
+  if (s.continuous_pickup != 1)
+    csvw->writeInt(s.continuous_pickup);
+  else
+    csvw->skip();
+
+  if (s.continuous_drop_off != 1)
+    csvw->writeInt(s.continuous_drop_off);
+  else
+    csvw->skip();
+
   csvw->flushLine();
 
   return true;
@@ -363,7 +402,8 @@ std::unique_ptr<CsvWriter> Writer::getRoutesCsvw(std::ostream* os) {
   return std::unique_ptr<CsvWriter>(new CsvWriter(
       os, {"route_id", "agency_id", "route_short_name", "route_long_name",
            "route_desc", "route_type", "route_url", "route_color",
-           "route_text_color", "route_sort_order"}));
+           "route_text_color", "route_sort_order", "continuous_pickup",
+           "continuous_drop_off"}));
 }
 
 // ____________________________________________________________________________
@@ -629,6 +669,64 @@ bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
                                            f.hasExactTimes()},
                      csvw.get());
     }
+  }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+std::unique_ptr<CsvWriter> Writer::getPathwayCsvw(std::ostream* os) {
+  return std::unique_ptr<CsvWriter>(new CsvWriter(
+      os,
+      {"pathway_id", "from_stop_id", "to_stop_id", "pathway_mode",
+       "is_bidirectional", "length", "traversal_time", "stair_count",
+       "max_slope", "min_width", "signposted_as", "reversed_signposted_as"}));
+}
+
+// ____________________________________________________________________________
+bool Writer::writePathway(const gtfs::flat::Pathway& l, CsvWriter* csvw) const {
+  csvw->writeString(l.id);
+  csvw->writeString(l.from_stop_id);
+  csvw->writeString(l.to_stop_id);
+  csvw->writeInt(l.pathway_mode);
+  csvw->writeInt(l.is_bidirectional);
+  if (l.length < 0)
+    csvw->skip();
+  else
+    csvw->writeDouble(l.length, 4);
+
+  if (l.traversal_time < 0)
+    csvw->skip();
+  else
+    csvw->writeInt(l.traversal_time);
+
+  if (l.stair_count < 1)
+    csvw->skip();
+  else
+    csvw->writeInt(l.stair_count);
+
+  if (l.max_slope == 0)
+    csvw->skip();
+  else
+    csvw->writeDouble(l.max_slope, 4);
+
+  if (l.min_width < 0)
+    csvw->skip();
+  else
+    csvw->writeDouble(l.min_width, 4);
+
+  csvw->writeString(l.signposted_as);
+  csvw->writeString(l.reversed_signposted_as);
+  csvw->flushLine();
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writePathways(gtfs::Feed* sourceFeed, std::ostream* s) const {
+  auto csvw = getPathwayCsvw(s);
+  for (const auto& a : sourceFeed->getPathways()) {
+    writePathway(a.second->getFlat(), csvw.get());
   }
 
   return true;

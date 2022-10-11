@@ -11,6 +11,7 @@ FEEDTPL bool Parser::parse(gtfs::FEEDB* targetFeed) const {
 
   parseFeedInfo(targetFeed);
   parseAgencies(targetFeed);
+  parseLevels(targetFeed);
   parseStops(targetFeed);
   parseRoutes(targetFeed);
   parseCalendar(targetFeed);
@@ -22,7 +23,7 @@ FEEDTPL bool Parser::parse(gtfs::FEEDB* targetFeed) const {
   parseTransfers(targetFeed);
   parseFareAttributes(targetFeed);
   parseFareRules(targetFeed);
-  parseLevels(targetFeed);
+  parsePathways(targetFeed);
 
   return true;
 }
@@ -367,6 +368,95 @@ void Parser::parseLevels(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
 }
 
 // ____________________________________________________________________________
+inline bool Parser::nextPathway(CsvParser* csvp, gtfs::flat::Pathway* a,
+                                const gtfs::flat::PathwayFlds& flds) const {
+  if (csvp->readNextLine()) {
+    a->id = getString(*csvp, flds.pathwayIdFld);
+    a->from_stop_id = getString(*csvp, flds.fromStopIdFld);
+    a->to_stop_id = getString(*csvp, flds.toStopIdFld);
+    a->pathway_mode = getRangeInteger(*csvp, flds.pathwayModeFld, 1, 7);
+    a->is_bidirectional = getRangeInteger(*csvp, flds.isBidirectionalFld, 0, 1);
+    a->length = getDouble(*csvp, flds.lengthFld, -1);
+    a->traversal_time =
+        getRangeInteger(*csvp, flds.traverselTimeFld, 0, UINT32_MAX, -1);
+    a->stair_count =
+        getRangeInteger(*csvp, flds.stairCountFld, 1, UINT32_MAX, 0);
+    a->max_slope = getDouble(*csvp, flds.maxSlopeFld, 0);
+    a->min_width = getDouble(*csvp, flds.minWidthFld, -1);
+    a->signposted_as = getString(*csvp, flds.signPostedAsFld, "");
+    a->reversed_signposted_as =
+        getString(*csvp, flds.reversedSignPostedAsFld, "");
+
+    return true;
+  }
+
+  return false;
+}
+
+// ____________________________________________________________________________
+inline gtfs::flat::PathwayFlds Parser::getPathwayFlds(CsvParser* csvp) {
+  gtfs::flat::PathwayFlds r;
+  r.pathwayIdFld = csvp->getFieldIndex("pathway_id");
+  r.fromStopIdFld = csvp->getFieldIndex("from_stop_id");
+  r.toStopIdFld = csvp->getFieldIndex("to_stop_id");
+  r.pathwayModeFld = csvp->getFieldIndex("pathway_mode");
+  r.isBidirectionalFld = csvp->getFieldIndex("is_bidirectional");
+  r.lengthFld = csvp->getOptFieldIndex("length");
+  r.traverselTimeFld = csvp->getOptFieldIndex("traversal_time");
+  r.stairCountFld = csvp->getOptFieldIndex("stair_count");
+  r.maxSlopeFld = csvp->getOptFieldIndex("max_slope");
+  r.minWidthFld = csvp->getOptFieldIndex("min_width");
+  r.signPostedAsFld = csvp->getOptFieldIndex("signposted_as");
+  r.reversedSignPostedAsFld = csvp->getOptFieldIndex("reversed_signposted_as");
+  return r;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void Parser::parsePathways(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
+  typename PathwayT::Ref a = (typename PathwayT::Ref());
+  gtfs::flat::Pathway fa;
+  auto flds = getPathwayFlds(csvp);
+
+  while (nextPathway(csvp, &fa, flds)) {
+    StopT* fromStop = 0;
+    StopT* toStop = 0;
+
+    fromStop = targetFeed->getStops().get(fa.from_stop_id);
+    toStop = targetFeed->getStops().get(fa.to_stop_id);
+
+    if (!fromStop) {
+      std::stringstream msg;
+      msg << "no stop with id '" << fa.from_stop_id
+          << "' defined in stops.txt, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "from_stop_id", csvp->getCurLine());
+    }
+
+    if (!toStop) {
+      std::stringstream msg;
+      msg << "no stop with id '" << fa.to_stop_id
+          << "' defined in stops.txt, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "to_stop_id", csvp->getCurLine());
+    }
+
+    if ((typename PathwayT::Ref()) ==
+        (a = targetFeed->getPathways().add(gtfs::Pathway(
+             fa.id, fromStop, toStop, fa.pathway_mode, fa.is_bidirectional,
+             fa.length, fa.traversal_time, fa.stair_count, fa.max_slope,
+             fa.min_width, fa.signposted_as, fa.reversed_signposted_as)))) {
+      std::stringstream msg;
+      msg << "'pathway_id' must be dataset unique. Collision with id '" << fa.id
+          << "')";
+      throw ParserException(msg.str(), "pathway_id", csvp->getCurLine());
+    }
+  }
+
+  targetFeed->getPathways().finalize();
+}
+
+// ____________________________________________________________________________
 FEEDTPL
 void Parser::parseAgencies(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
   typename AgencyT::Ref a = (typename AgencyT::Ref());
@@ -411,6 +501,7 @@ inline gtfs::flat::StopFlds Parser::getStopFlds(CsvParser* csvp) {
   r.wheelchairBoardingFld = csvp->getOptFieldIndex("wheelchair_boarding");
   r.locationTypeFld = csvp->getOptFieldIndex("location_type");
   r.platformCodeFld = csvp->getOptFieldIndex("platform_code");
+  r.levelIdFld = csvp->getOptFieldIndex("level_id");
   return r;
 }
 
@@ -436,14 +527,21 @@ inline bool Parser::nextStop(CsvParser* csvp, gtfs::flat::Stop* s,
     if (s->location_type < 3) {
       s->lat = getDouble(*csvp, flds.stopLatFld);
       s->lng = getDouble(*csvp, flds.stopLonFld);
+
+      if (s->lat > 90 || s->lat < -90)
+        throw ParserException("latitude must be between -90.0 and 90.0",
+                              "stop_lat", csvp->getCurLine());
+
+      if (s->lng > 180 || s->lng < -180)
+        throw ParserException("longitude must be between -180.0 and 180.0",
+                              "stop_lon", csvp->getCurLine());
     } else {
-      s->lat = getDouble(*csvp, flds.stopLatFld,
-                         std::numeric_limits<double>::quiet_NaN());
-      s->lng = getDouble(*csvp, flds.stopLonFld,
-                         std::numeric_limits<double>::quiet_NaN());
+      s->lat = getDouble(*csvp, flds.stopLatFld, 99999);
+      s->lng = getDouble(*csvp, flds.stopLonFld, 99999);
     }
     s->wheelchair_boarding = static_cast<gtfs::flat::Stop::WHEELCHAIR_BOARDING>(
         getRangeInteger(*csvp, flds.wheelchairBoardingFld, 0, 2, 0));
+    s->level_id = getString(*csvp, flds.levelIdFld, "");
 
     return true;
   }
@@ -461,11 +559,22 @@ void Parser::parseStops(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
 
   while (nextStop(csvp, &fs, flds)) {
     targetFeed->updateBox(fs.lat, fs.lng);
+    Level* level = 0;
+
+    if (!fs.level_id.empty()) {
+      level = targetFeed->getLevels().get(fs.level_id);
+      if (!level) {
+        std::stringstream msg;
+        msg << "no stop with id '" << fs.level_id << "' defined, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "level_id", csvp->getCurLine());
+      }
+    }
 
     const StopT& s =
         StopT(fs.id, fs.code, fs.name, fs.desc, fs.lat, fs.lng, fs.zone_id,
               fs.stop_url, fs.location_type, 0, fs.stop_timezone,
-              fs.wheelchair_boarding, fs.platform_code);
+              fs.wheelchair_boarding, fs.platform_code, level);
 
     if (!fs.parent_station.empty()) {
       if (fs.location_type == gtfs::flat::Stop::LOCATION_TYPE::STATION) {
@@ -519,6 +628,8 @@ inline gtfs::flat::RouteFlds Parser::getRouteFlds(CsvParser* csvp) {
   r.routeColorFld = csvp->getOptFieldIndex("route_color");
   r.routeTextColorFld = csvp->getOptFieldIndex("route_text_color");
   r.routeSortOrderFld = csvp->getOptFieldIndex("route_sort_order");
+  r.continuousDropOffFld = csvp->getOptFieldIndex("continuous_drop_off");
+  r.continuousPickupFld = csvp->getOptFieldIndex("continuous_pickup");
   return r;
 }
 
@@ -539,6 +650,10 @@ inline bool Parser::nextRoute(CsvParser* csvp, gtfs::flat::Route* r,
     r->sort_order = getRangeInteger(*csvp, flds.routeSortOrderFld, 0,
                                     std::numeric_limits<int64_t>::max(),
                                     std::numeric_limits<int64_t>::max());
+    r->continuous_drop_off =
+        getRangeInteger(*csvp, flds.continuousDropOffFld, 0, 3, 1);
+    r->continuous_pickup =
+        getRangeInteger(*csvp, flds.continuousPickupFld, 0, 3, 1);
     return true;
   }
 
@@ -566,7 +681,8 @@ void Parser::parseRoutes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
 
     if (!targetFeed->getRoutes().add(
             RouteT(fr.id, routeAgency, fr.short_name, fr.long_name, fr.desc,
-                   fr.type, fr.url, fr.color, fr.text_color, fr.sort_order))) {
+                   fr.type, fr.url, fr.color, fr.text_color, fr.sort_order,
+                   fr.continuous_pickup, fr.continuous_drop_off))) {
       std::stringstream msg;
       msg << "'route_id' must be dataset unique. Collision with id '" << fr.id
           << "')";
@@ -912,6 +1028,26 @@ void Parser::parseFeedInfo(gtfs::FEEDB* targetFeed) const {
 
 // ____________________________________________________________________________
 FEEDTPL
+void Parser::parsePathways(gtfs::FEEDB* targetFeed) const {
+  std::string curFile = _path + "/pathways.txt";
+  try {
+    auto csvp = getCsvParser("pathways.txt");
+    if (csvp->isGood()) {
+      parsePathways(targetFeed, csvp.get());
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
+  }
+}
+
+// ____________________________________________________________________________
+FEEDTPL
 void Parser::parseLevels(gtfs::FEEDB* targetFeed) const {
   std::string curFile = _path + "/levels.txt";
   try {
@@ -1128,6 +1264,8 @@ inline gtfs::flat::StopTimeFlds Parser::getStopTimeFlds(CsvParser* csvp) {
   s.timepointFld = csvp->getOptFieldIndex("timepoint");
   s.pickUpTypeFld = csvp->getOptFieldIndex("pickup_type");
   s.dropOffTypeFld = csvp->getOptFieldIndex("drop_off_type");
+  s.continuousDropOffFld = csvp->getOptFieldIndex("continuous_drop_off");
+  s.continuousPickupFld = csvp->getOptFieldIndex("continuous_pickup");
   return s;
 }
 
@@ -1149,6 +1287,11 @@ inline bool Parser::nextStopTime(CsvParser* csvp, gtfs::flat::StopTime* s,
         getRangeInteger(*csvp, flds.pickUpTypeFld, 0, 3, 0));
     s->dropOffType = static_cast<gtfs::flat::StopTime::PU_DO_TYPE>(
         getRangeInteger(*csvp, flds.dropOffTypeFld, 0, 3, 0));
+
+    s->continuousDropOff =
+        getRangeInteger(*csvp, flds.continuousDropOffFld, 0, 3, 1);
+    s->continuousPickup =
+        getRangeInteger(*csvp, flds.continuousPickupFld, 0, 3, 1);
 
     // if at and dt are empty, default to 0 here
     s->isTimepoint = getRangeInteger(*csvp, flds.timepointFld, 0, 1,
@@ -1210,7 +1353,8 @@ void Parser::parseStopTimes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
 
     StopTimeT<StopT> st(fst.at, fst.dt, stop, fst.sequence, fst.headsign,
                         fst.pickupType, fst.dropOffType, fst.shapeDistTravelled,
-                        fst.isTimepoint);
+                        fst.isTimepoint, fst.continuousDropOff,
+                        fst.continuousPickup);
 
     if (st.getArrivalTime() > st.getDepartureTime()) {
       throw ParserException("arrival time '" + st.getArrivalTime().toString() +

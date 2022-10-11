@@ -23,6 +23,8 @@
 #include "gtfs/flat/Shape.h"
 #include "gtfs/flat/Trip.h"
 #include "gtfs/flat/StopTime.h"
+#include "gtfs/flat/Level.h"
+#include "gtfs/flat/Pathway.h"
 
 using std::string;
 using ad::util::CsvWriter;
@@ -103,6 +105,9 @@ class Writer {
   bool writeLevel(const gtfs::flat::Level& ag, CsvWriter* csvw) const;
   bool writeLevels(gtfs::Feed* f, std::ostream* os) const;
 
+  bool writePathway(const gtfs::flat::Pathway& ag, CsvWriter* csvw) const;
+  bool writePathways(gtfs::Feed* f, std::ostream* os) const;
+
   static void cannotWrite(const std::string& file);
 
   static std::unique_ptr<CsvWriter> getAgencyCsvw(std::ostream* os);
@@ -119,6 +124,7 @@ class Writer {
   static std::unique_ptr<CsvWriter> getStopTimesCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getFeedInfoCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getLevelCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getPathwayCsvw(std::ostream* os);
 };
 }  // namespace cppgtfs
 }  // namespace ad

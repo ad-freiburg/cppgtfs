@@ -70,8 +70,9 @@ std::pair<size_t, size_t> ZipCsvParser::fetchLine() {
     // copy tmp buffer to original buffer
     memcpy(_buff, _tmpBuff, _bufSize - (_lastLine + 1));
 
+    // only read BUFFER_S - 1 bytes to always have space for the 0 byte
     auto bytesRead = zip_fread(_zf, _buff + (_bufSize - (_lastLine + 1)),
-                               BUFFER_S - (_bufSize - (_lastLine + 1)));
+                               BUFFER_S - 1 - (_bufSize - (_lastLine + 1)));
 
     if (bytesRead < 0) {
       return {0, 0};
@@ -82,8 +83,9 @@ std::pair<size_t, size_t> ZipCsvParser::fetchLine() {
 
     if (bytesRead == 0) {
       // arrived at end of file
-      _buff[_bufSize + 1] = 0;
-      return {_lastLine + 1, _bufSize};
+      _buff[_bufSize] = 0;
+      _lastLine = _bufSize - 1;
+      return {0, _bufSize};
     }
 
     return fetchLine();

@@ -30,6 +30,8 @@ struct StopTimeFlds {
   size_t timepointFld;
   size_t pickUpTypeFld;
   size_t dropOffTypeFld;
+  size_t continuousDropOffFld;
+  size_t continuousPickupFld;
 };
 
 struct Time {
@@ -90,6 +92,8 @@ struct StopTime {
   PU_DO_TYPE dropOffType;
   bool isTimepoint;
   float shapeDistTravelled;
+  uint8_t continuousDropOff;
+  uint8_t continuousPickup;
 };
 
 }  // namespace flat

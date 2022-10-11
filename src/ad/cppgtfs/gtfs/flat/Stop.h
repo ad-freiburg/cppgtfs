@@ -29,6 +29,7 @@ struct StopFlds {
   size_t wheelchairBoardingFld;
   size_t locationTypeFld;
   size_t platformCodeFld;
+  size_t levelIdFld;
 };
 
 struct Stop {
@@ -47,7 +48,7 @@ struct Stop {
   };
 
   std::string id, code, name, desc, zone_id, stop_url, stop_timezone,
-      platform_code, parent_station;
+      platform_code, parent_station, level_id;
   float lat, lng;
   Stop::WHEELCHAIR_BOARDING wheelchair_boarding;
   Stop::LOCATION_TYPE location_type;

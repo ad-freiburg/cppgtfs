@@ -6,11 +6,13 @@
 #define AD_CPPGTFS_GTFS_ROUTE_H_
 
 #include <stdint.h>
+
 #include <algorithm>
 #include <iomanip>
 #include <set>
 #include <sstream>
 #include <string>
+
 #include "Agency.h"
 #include "flat/Route.h"
 
@@ -36,7 +38,8 @@ class RouteB {
   RouteB(const string& id, typename AgencyT::Ref agency,
          const string& short_name, const string& long_name, const string& desc,
          flat::Route::TYPE type, const string& url, uint32_t color,
-         uint32_t text_color, int64_t sort_order)
+         uint32_t text_color, int64_t sort_order, uint8_t continuous_pickup,
+         uint8_t continuous_drop_off)
       : _id(id),
         _agency(agency),
         _short_name(short_name),
@@ -46,7 +49,9 @@ class RouteB {
         _url(url),
         _color(color),
         _text_color(text_color),
-        _sort_order(sort_order) {}
+        _sort_order(sort_order),
+        _continuous_pickup(continuous_pickup),
+        _continuous_drop_off(continuous_drop_off) {}
 
   const std::string& getId() const { return _id; }
 
@@ -81,7 +86,8 @@ class RouteB {
   flat::Route getFlat() const {
     flat::Route r;
     r.id = _id;
-    r.agency = _agency == typename AgencyT::Ref() ? "" :  AgencyT::getId(_agency);
+    r.agency =
+        _agency == typename AgencyT::Ref() ? "" : AgencyT::getId(_agency);
     r.short_name = _short_name;
     r.long_name = _long_name;
     r.desc = _desc;
@@ -90,6 +96,8 @@ class RouteB {
     r.color = _color;
     r.text_color = _text_color;
     r.sort_order = _sort_order;
+    r.continuous_pickup = _continuous_pickup;
+    r.continuous_drop_off = _continuous_drop_off;
     return r;
   }
 
@@ -110,6 +118,8 @@ class RouteB {
   uint32_t _color;
   uint32_t _text_color;
   int64_t _sort_order;
+  uint8_t _continuous_pickup;
+  uint8_t _continuous_drop_off;
 };
 
 typedef RouteB<Agency> Route;
