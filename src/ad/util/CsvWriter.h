@@ -9,6 +9,7 @@
 #include <exception>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -30,6 +31,9 @@ class CsvWriter {
   // Initializes the parser by opening the file
   CsvWriter(std::ostream* str, const HeaderList& headers);
 
+  // Initializes the parser by opening the file and reading the table header.
+  CsvWriter(const std::string& path, const HeaderList& headers);
+
   void writeDouble(double d);
   void writeDouble(double d, size_t digits);
   void writeString(const std::string& str);
@@ -38,8 +42,10 @@ class CsvWriter {
 
   void flushLine();
 
- private:
-  std::ostream* _stream;
+ protected:
+  virtual void write(const char* s, size_t n);
+  virtual void put(char c);
+
   HeaderList _headers;
   bool _hWritten;
   bool _first;
@@ -54,6 +60,9 @@ class CsvWriter {
   int pow10(int i) const;
 
   std::string escStr(const std::string& str) const;
+
+  std::ostream* _stream;
+  std::ofstream _ofstream;
 };
 }  // namespace util
 }  // namespace ad

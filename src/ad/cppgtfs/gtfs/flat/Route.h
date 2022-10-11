@@ -54,7 +54,7 @@ struct Route {
   std::string url;
   uint32_t color;
   uint32_t text_color;
-  size_t sort_order;
+  int64_t sort_order;
 
   static std::string getHexColorString(uint32_t color) {
     if (color == std::numeric_limits<uint32_t>::max()) return "";

@@ -105,20 +105,20 @@ class Writer {
 
   static void cannotWrite(const std::string& file);
 
-  static CsvWriter getAgencyCsvw(std::ostream* os);
-  static CsvWriter getStopsCsvw(std::ostream* os);
-  static CsvWriter getRoutesCsvw(std::ostream* os);
-  static CsvWriter getCalendarCsvw(std::ostream* os);
-  static CsvWriter getCalendarDatesCsvw(std::ostream* os);
-  static CsvWriter getFrequencyCsvw(std::ostream* os);
-  static CsvWriter getTransfersCsvw(std::ostream* os);
-  static CsvWriter getFaresCsvw(std::ostream* os);
-  static CsvWriter getFareRulesCsvw(std::ostream* os);
-  static CsvWriter getShapesCsvw(std::ostream* os);
-  static CsvWriter getTripsCsvw(std::ostream* os);
-  static CsvWriter getStopTimesCsvw(std::ostream* os);
-  static CsvWriter getFeedInfoCsvw(std::ostream* os);
-  static CsvWriter getLevelCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getAgencyCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getStopsCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getRoutesCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getCalendarCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getCalendarDatesCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getFrequencyCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getTransfersCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getFaresCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getFareRulesCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getShapesCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getTripsCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getStopTimesCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getFeedInfoCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getLevelCsvw(std::ostream* os);
 };
 }  // namespace cppgtfs
 }  // namespace ad

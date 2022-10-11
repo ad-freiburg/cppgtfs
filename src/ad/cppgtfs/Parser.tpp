@@ -1469,7 +1469,8 @@ inline uint32_t Parser::atoi(const char** p) {
 }
 
 // ___________________________________________________________________________
-inline std::unique_ptr<CsvParser> Parser::getCsvParser(const std::string& file) const {
+inline std::unique_ptr<CsvParser> Parser::getCsvParser(
+    const std::string& file) const {
   if (_za) return std::unique_ptr<CsvParser>(new ZipCsvParser(_za, file));
   return std::unique_ptr<CsvParser>(new CsvParser(_path + "/" + file));
 }
