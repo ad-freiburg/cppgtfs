@@ -264,10 +264,11 @@ bool Writer::writeTrips(gtfs::Feed* sourceFeed, std::ostream* s) const {
 
 // ____________________________________________________________________________
 std::unique_ptr<CsvWriter> Writer::getStopTimesCsvw(std::ostream* os) {
-  return std::unique_ptr<CsvWriter>(
-      new CsvWriter(os, {"trip_id", "arrival_time", "departure_time", "stop_id",
-                         "stop_sequence", "stop_headsign", "pickup_type",
-                         "drop_off_type", "shape_dist_traveled", "timepoint", "continuous_pickup", "continuous_drop_off"}));
+  return std::unique_ptr<CsvWriter>(new CsvWriter(
+      os,
+      {"trip_id", "arrival_time", "departure_time", "stop_id", "stop_sequence",
+       "stop_headsign", "pickup_type", "drop_off_type", "shape_dist_traveled",
+       "timepoint", "continuous_pickup", "continuous_drop_off"}));
 }
 
 // ____________________________________________________________________________
@@ -309,12 +310,12 @@ bool Writer::writeStopTimes(gtfs::Feed* sourceFeed, std::ostream* s) const {
   for (const auto& t : sourceFeed->getTrips()) {
     for (const auto& p : t.second->getStopTimes()) {
       writeStopTime(
-          gtfs::flat::StopTime{p.getArrivalTime(), p.getDepartureTime(),
-                               t.second->getId(), p.getStop()->getId(),
-                               p.getSeq(), p.getHeadsign(), p.getPickupType(),
-                               p.getDropOffType(), p.isTimepoint(),
-                               p.getShapeDistanceTravelled(),
-                               p.getContinuousDropOff(), p.getContinuousPickup()},
+          gtfs::flat::StopTime{
+              p.getArrivalTime(), p.getDepartureTime(), t.second->getId(),
+              p.getStop()->getId(), p.getSeq(), p.getHeadsign(),
+              p.getPickupType(), p.getDropOffType(), p.isTimepoint(),
+              p.getShapeDistanceTravelled(), p.getContinuousDropOff(),
+              p.getContinuousPickup()},
           csvw.get());
     }
   }
@@ -421,7 +422,8 @@ bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
 std::unique_ptr<CsvWriter> Writer::getFeedInfoCsvw(std::ostream* os) {
   return std::unique_ptr<CsvWriter>(new CsvWriter(
       os, {"feed_publisher_name", "feed_publisher_url", "feed_lang",
-           "feed_start_date", "feed_end_date", "feed_version"}));
+           "feed_start_date", "feed_end_date", "feed_version",
+           "feed_contact_email", "feed_contact_url", "default_lang"}));
 }
 
 // ____________________________________________________________________________
@@ -440,6 +442,9 @@ bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
   else
     csvw->skip();
   csvw->writeString(f->getVersion());
+  csvw->writeString(f->getContactEmail());
+  csvw->writeString(f->getContactUrl());
+  csvw->writeString(f->getDefaultLang());
   csvw->flushLine();
 
   return true;

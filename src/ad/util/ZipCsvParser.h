@@ -6,6 +6,7 @@
 #ifndef AD_UTIL_ZIPCSVPARSER_H_
 #define AD_UTIL_ZIPCSVPARSER_H_
 
+#ifdef LIBZIP_FOUND
 #include <stdint.h>
 #include <exception>
 #include <iostream>
@@ -51,5 +52,6 @@ class ZipCsvParser : public CsvParser {
 };
 }  // namespace util
 }  // namespace ad
+#endif
 
 #endif  // AD_UTIL_ZIPCSVPARSER_H_

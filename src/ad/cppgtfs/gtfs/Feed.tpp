@@ -118,6 +118,30 @@ const ServiceDate& FEEDB::getEndDate() const { return _endDate; }
 
 // ____________________________________________________________________________
 FEEDTPL
+const std::string& FEEDB::getContactEmail() const { return _contactMail; }
+
+// ____________________________________________________________________________
+FEEDTPL
+const std::string& FEEDB::getContactUrl() const { return _contactUrl; }
+
+// ____________________________________________________________________________
+FEEDTPL
+const std::string& FEEDB::getDefaultLang() const { return _defaultLang; }
+
+// ____________________________________________________________________________
+FEEDTPL
+void FEEDB::setDefaultLang(const std::string& l) { _defaultLang = l; }
+
+// ____________________________________________________________________________
+FEEDTPL
+void FEEDB::setContactEmail(const std::string& email) { _contactMail = email; }
+
+// ____________________________________________________________________________
+FEEDTPL
+void FEEDB::setContactUrl(const std::string& url) { _contactUrl = url; }
+
+// ____________________________________________________________________________
+FEEDTPL
 void FEEDB::setPublisherName(const std::string& name) { _publisherName = name; }
 
 // ____________________________________________________________________________

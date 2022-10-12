@@ -3,6 +3,7 @@
 // Authors: Hannah Bast <bast@informatik.uni-freiburg.de>,
 //          Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
+#ifdef LIBZIP_FOUND
 #include <zip.h>
 
 #include <algorithm>
@@ -98,3 +99,4 @@ std::pair<size_t, size_t> ZipCsvParser::fetchLine() {
 
   return ret;
 }
+#endif

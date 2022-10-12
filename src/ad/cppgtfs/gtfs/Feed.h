@@ -105,6 +105,9 @@ class FeedB {
   const std::string& getVersion() const;
   const ServiceDate& getStartDate() const;
   const ServiceDate& getEndDate() const;
+  const std::string& getContactEmail() const;
+  const std::string& getContactUrl() const;
+  const std::string& getDefaultLang() const;
 
   void setPublisherName(const std::string& name);
   void setPublisherUrl(const std::string& url);
@@ -112,6 +115,9 @@ class FeedB {
   void setVersion(const std::string& version);
   void setStartDate(const ServiceDate& start);
   void setEndDate(const ServiceDate& end);
+  void setContactEmail(const std::string& email);
+  void setContactUrl(const std::string& url);
+  void setDefaultLang(const std::string& lang);
 
   void updateBox(double lat, double lon);
   double getMinLat() const;
@@ -137,7 +143,8 @@ class FeedB {
 
   double _maxLat, _maxLon, _minLat, _minLon;
 
-  std::string _publisherName, _publisherUrl, _lang, _version, _path;
+  std::string _publisherName, _publisherUrl, _lang, _version, _path,
+      _contactMail, _contactUrl, _defaultLang;
   ServiceDate _startDate, _endDate;
 };
 

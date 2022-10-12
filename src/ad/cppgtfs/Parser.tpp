@@ -279,6 +279,9 @@ void Parser::parseFeedInfo(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
   size_t feedStartDateFld = csvp->getOptFieldIndex("feed_start_date");
   size_t feedEndDateFld = csvp->getOptFieldIndex("feed_end_date");
   size_t feedVersionFld = csvp->getOptFieldIndex("feed_version");
+  size_t feedContactEmailFld = csvp->getOptFieldIndex("feed_contact_email");
+  size_t feedContactUrlFld = csvp->getOptFieldIndex("feed_contact_url");
+  size_t defaultLangFld = csvp->getOptFieldIndex("default_lang");
 
   while (csvp->readNextLine()) {
     targetFeed->setPublisherName(getString(*csvp, feedPublisherNameFld));
@@ -287,6 +290,9 @@ void Parser::parseFeedInfo(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
     targetFeed->setVersion(getString(*csvp, feedVersionFld, ""));
     targetFeed->setStartDate(getServiceDate(*csvp, feedStartDateFld, false));
     targetFeed->setEndDate(getServiceDate(*csvp, feedEndDateFld, false));
+    targetFeed->setContactEmail(getString(*csvp, feedContactEmailFld, ""));
+    targetFeed->setContactUrl(getString(*csvp, feedContactUrlFld, ""));
+    targetFeed->setDefaultLang(getString(*csvp, defaultLangFld, ""));
   }
 }
 
@@ -1615,6 +1621,8 @@ inline uint32_t Parser::atoi(const char** p) {
 // ___________________________________________________________________________
 inline std::unique_ptr<CsvParser> Parser::getCsvParser(
     const std::string& file) const {
+#ifdef LIBZIP_FOUND
   if (_za) return std::unique_ptr<CsvParser>(new ZipCsvParser(_za, file));
+#endif
   return std::unique_ptr<CsvParser>(new CsvParser(_path + "/" + file));
 }

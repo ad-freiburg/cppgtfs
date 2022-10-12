@@ -6,8 +6,11 @@
 #define AD_CPPGTFS_PARSER_H_
 
 #include <stdint.h>
-#include <zip.h>
 #include <sys/stat.h>
+
+#ifdef LIBZIP_FOUND
+#include <zip.h>
+#endif
 
 #include <cstring>
 #include <exception>
@@ -20,7 +23,11 @@
 #include <vector>
 
 #include "ad/util/CsvParser.h"
+
+#ifdef LIBZIP_FOUND
 #include "ad/util/ZipCsvParser.h"
+#endif
+
 #include "gtfs/Feed.h"
 #include "gtfs/flat/Agency.h"
 #include "gtfs/flat/Frequency.h"
@@ -48,7 +55,11 @@ using ad::cppgtfs::gtfs::Transfer;
 using ad::cppgtfs::gtfs::TripB;
 using ad::util::CsvParser;
 using ad::util::CsvParserException;
+
+#ifdef LIBZIP_FOUND
 using ad::util::ZipCsvParser;
+#endif
+
 using std::string;
 
 // A GTFS parser
@@ -96,7 +107,13 @@ class Parser {
   Parser(const std::string& path) : Parser(path, false) {}
 
   Parser(const std::string& path, bool strict)
-      : _path(path), _strict(strict), _za(0) {
+      : _path(path),
+        _strict(strict)
+#ifdef LIBZIP_FOUND
+        ,
+        _za(0)
+#endif
+  {
     struct stat s;
     stat(path.c_str(), &s);
 
@@ -104,6 +121,7 @@ class Parser {
       // we parse from raw CSV files
     } else {
       // we parse from a file, assume it is a ZIP file
+#ifdef LIBZIP_FOUND
       int zipErr;
       _za = zip_open(path.c_str(), ZIP_RDONLY, &zipErr);
 
@@ -113,10 +131,18 @@ class Parser {
         throw ParserException(errBuf, "", -1, path);
       }
     }
+#else
+      throw ParserException(
+          "Cannot read from ZIP file, pfaedle was compiled without libzip", "",
+          -1, path);
+    }
+#endif
   }
 
   ~Parser() {
+#ifdef LIBZIP_FOUND
     if (_za) zip_close(_za);
+#endif
   }
 
   // parse a zip/folder into a GtfsFeed
@@ -159,7 +185,7 @@ class Parser {
 
   inline static gtfs::flat::PathwayFlds getPathwayFlds(CsvParser* csvp);
   inline bool nextPathway(CsvParser* csvp, gtfs::flat::Pathway* a,
-                        const gtfs::flat::PathwayFlds&) const;
+                          const gtfs::flat::PathwayFlds&) const;
 
   inline static gtfs::flat::StopFlds getStopFlds(CsvParser* csvp);
   inline bool nextStop(CsvParser* csvp, gtfs::flat::Stop* s,
@@ -256,7 +282,10 @@ class Parser {
  private:
   std::string _path;
   bool _strict;
+
+#ifdef LIBZIP_FOUND
   zip* _za;
+#endif
 
   static uint32_t atoi(const char** p);
 
