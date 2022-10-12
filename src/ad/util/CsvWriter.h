@@ -34,6 +34,8 @@ class CsvWriter {
   // Initializes the parser by opening the file and reading the table header.
   CsvWriter(const std::string& path, const HeaderList& headers);
 
+  virtual ~CsvWriter() = default;
+
   void writeDouble(double d);
   void writeDouble(double d, size_t digits);
   void writeString(const std::string& str);
