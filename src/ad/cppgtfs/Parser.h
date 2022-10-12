@@ -133,7 +133,7 @@ class Parser {
     }
 #else
       throw ParserException(
-          "Cannot read from ZIP file, pfaedle was compiled without libzip", "",
+          "Cannot read from ZIP file, was compiled without libzip", "",
           -1, path);
     }
 #endif
