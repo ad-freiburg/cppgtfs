@@ -42,6 +42,8 @@ struct Route {
     CABLE_CAR = 5,
     GONDOLA = 6,
     FUNICULAR = 7,
+    TROLLEYBUS = 11,
+    MONORAIL = 12,
     COACH = 200,
     AIR = 199,
     NONE = 99
@@ -70,6 +72,8 @@ struct Route {
 
   static std::string getTypeString(flat::Route::TYPE t) {
     if (t == flat::Route::COACH) return "coach";
+    if (t == flat::Route::TROLLEYBUS) return "trolleybus";
+    if (t == flat::Route::MONORAIL) return "monorail";
     std::string names[8] = {"tram",  "subway",   "rail",    "bus",
                             "ferry", "cablecar", "gondola", "funicular"};
     return names[t];
@@ -99,7 +103,6 @@ struct Route {
       case 400:
       case 403:
       case 404:
-      case 405:
       case 1503:
         return Route::TYPE::RAIL;
       case 3:
@@ -133,7 +136,6 @@ struct Route {
       case 715:
       case 716:
       case 717:
-      case 800:
       case 1500:
       case 1501:
       case 1505:
@@ -211,6 +213,12 @@ struct Route {
         return Route::TYPE::FUNICULAR;
       case 5:
         return Route::TYPE::CABLE_CAR;
+      case 11:
+      case 800:
+        return Route::TYPE::TROLLEYBUS;
+      case 12:
+      case 405:
+        return Route::TYPE::MONORAIL;
       default:
         return Route::TYPE::NONE;
     }
@@ -241,6 +249,8 @@ struct Route {
       ret.insert(flat::Route::TYPE::CABLE_CAR);
       ret.insert(flat::Route::TYPE::GONDOLA);
       ret.insert(flat::Route::TYPE::FUNICULAR);
+      ret.insert(flat::Route::TYPE::TROLLEYBUS);
+      ret.insert(flat::Route::TYPE::MONORAIL);
       return ret;
     }
 
@@ -292,6 +302,16 @@ struct Route {
 
     if (name == "coach") {
       ret.insert(flat::Route::TYPE::COACH);
+      return ret;
+    }
+
+    if (name == "mono-rail" || name == "monorail") {
+      ret.insert(flat::Route::TYPE::MONORAIL);
+      return ret;
+    }
+
+    if (name == "trolley" || name == "trolleybus" || name == "trolley-bus") {
+      ret.insert(flat::Route::TYPE::TROLLEYBUS);
       return ret;
     }
 
