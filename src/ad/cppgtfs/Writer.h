@@ -13,6 +13,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 #include "ad/util/CsvWriter.h"
 #include "gtfs/Feed.h"
 #include "gtfs/flat/Agency.h"

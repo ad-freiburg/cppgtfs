@@ -17,6 +17,7 @@
 #include <fstream>
 #include <iostream>
 #include <istream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -133,8 +134,8 @@ class Parser {
     }
 #else
       throw ParserException(
-          "Cannot read from ZIP file, was compiled without libzip", "",
-          -1, path);
+          "Cannot read from ZIP file, was compiled without libzip", "", -1,
+          path);
     }
 #endif
   }
