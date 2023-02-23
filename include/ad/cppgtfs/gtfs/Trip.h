@@ -5,7 +5,7 @@
 #ifndef AD_CPPGTFS_GTFS_TRIP_H_
 #define AD_CPPGTFS_GTFS_TRIP_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <set>
 #include <string>
@@ -15,7 +15,7 @@
 #include "Shape.h"
 #include "Stop.h"
 #include "StopTime.h"
-#include "flat/Trip.h"
+#include "ad/cppgtfs/gtfs/flat/Trip.h"
 
 using std::exception;
 using std::string;

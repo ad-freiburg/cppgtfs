@@ -5,7 +5,7 @@
 #ifndef AD_CPPGTFS_GTFS_STOP_H_
 #define AD_CPPGTFS_GTFS_STOP_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include <cassert>
 #include <string>
 #include "flat/Stop.h"

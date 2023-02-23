@@ -3,16 +3,14 @@
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
 #include <cmath>
-#include <fstream>
 #include <map>
 #include <string>
-#include <utility>
 
-#include "Writer.h"
-#include "ad/util/CsvWriter.h"
-#include "gtfs/Shape.h"
-#include "gtfs/Trip.h"
-#include "gtfs/flat/Agency.h"
+#include "ad/cppgtfs/Writer.h"
+#include "ad/cppgtfs/util/CsvWriter.h"
+#include "ad/cppgtfs/gtfs/Shape.h"
+#include "ad/cppgtfs/gtfs/Trip.h"
+#include "ad/cppgtfs/gtfs/flat/Agency.h"
 
 using ad::cppgtfs::Writer;
 using ad::cppgtfs::gtfs::Agency;
