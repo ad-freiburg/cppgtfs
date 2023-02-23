@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "Stop.h"
-#include "flat/StopTime.h"
+#include "ad/cppgtfs/gtfs/flat/StopTime.h"
 
 using std::exception;
 using std::string;

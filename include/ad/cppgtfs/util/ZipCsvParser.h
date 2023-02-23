@@ -7,7 +7,7 @@
 #define AD_UTIL_ZIPCSVPARSER_H_
 
 #ifdef LIBZIP_FOUND
-#include <stdint.h>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <istream>

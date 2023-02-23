@@ -6,7 +6,7 @@
 #ifndef AD_UTIL_CSVPARSER_H_
 #define AD_UTIL_CSVPARSER_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <istream>

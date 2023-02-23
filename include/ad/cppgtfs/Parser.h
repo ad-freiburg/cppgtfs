@@ -23,21 +23,21 @@
 #include <unordered_map>
 #include <vector>
 
-#include "ad/util/CsvParser.h"
+#include "ad/cppgtfs/util/CsvParser.h"
 
 #ifdef LIBZIP_FOUND
-#include "ad/util/ZipCsvParser.h"
+#include "ad/cppgtfs/util/ZipCsvParser.h"
 #endif
 
 #include "gtfs/Feed.h"
-#include "gtfs/flat/Agency.h"
-#include "gtfs/flat/Frequency.h"
-#include "gtfs/flat/Level.h"
-#include "gtfs/flat/Pathway.h"
-#include "gtfs/flat/Route.h"
-#include "gtfs/flat/Service.h"
-#include "gtfs/flat/Shape.h"
-#include "gtfs/flat/Transfer.h"
+#include "ad/cppgtfs/gtfs/flat/Agency.h"
+#include "ad/cppgtfs/gtfs/flat/Frequency.h"
+#include "ad/cppgtfs/gtfs/flat/Level.h"
+#include "ad/cppgtfs/gtfs/flat/Pathway.h"
+#include "ad/cppgtfs/gtfs/flat/Route.h"
+#include "ad/cppgtfs/gtfs/flat/Service.h"
+#include "ad/cppgtfs/gtfs/flat/Shape.h"
+#include "ad/cppgtfs/gtfs/flat/Transfer.h"
 
 using ad::cppgtfs::gtfs::Agency;
 using ad::cppgtfs::gtfs::Fare;
