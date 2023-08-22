@@ -31,12 +31,12 @@ FEEDTPL bool Parser::parse(gtfs::FEEDB* targetFeed) const {
 // ____________________________________________________________________________
 inline gtfs::flat::TransfersFlds Parser::getTransfersFlds(CsvParser* csvp) {
   gtfs::flat::TransfersFlds t;
-  t.fromStopIdFld = csvp->getFieldIndex("from_stop_id");
-  t.toStopIdFld = csvp->getFieldIndex("to_stop_id");
-  t.fromRouteIdFld = csvp->getFieldIndex("from_route_id");
-  t.toRouteIdFld = csvp->getFieldIndex("to_route_id");
-  t.fromTripIdFld = csvp->getFieldIndex("from_trip_id");
-  t.toTripIdFld = csvp->getFieldIndex("to_trip_id");
+  t.fromStopIdFld = csvp->getOptFieldIndex("from_stop_id");
+  t.toStopIdFld = csvp->getOptFieldIndex("to_stop_id");
+  t.fromRouteIdFld = csvp->getOptFieldIndex("from_route_id");
+  t.toRouteIdFld = csvp->getOptFieldIndex("to_route_id");
+  t.fromTripIdFld = csvp->getOptFieldIndex("from_trip_id");
+  t.toTripIdFld = csvp->getOptFieldIndex("to_trip_id");
   t.transferTypeFld = csvp->getFieldIndex("transfer_type");
   t.minTransferTimeFld = csvp->getOptFieldIndex("min_transfer_time");
   return t;
