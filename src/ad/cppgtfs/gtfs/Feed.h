@@ -57,7 +57,8 @@ class FeedB {
   typedef FContainerT<FareT<RouteT>> Fares;
   typedef LContainerT<LevelT> Levels;
   typedef PContainerT<PathwayT> Pathways;
-  typedef std::vector<Transfer> Transfers;
+  typedef std::vector<Transfer<StopT, StopTimeT, ServiceT, RouteT, ShapeT>>
+      Transfers;
   typedef std::set<std::string> Zones;
 
  public:

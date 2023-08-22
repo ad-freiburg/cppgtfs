@@ -16,6 +16,10 @@ namespace flat {
 struct TransfersFlds {
   size_t fromStopIdFld;
   size_t toStopIdFld;
+  size_t fromRouteIdFld;
+  size_t toRouteIdFld;
+  size_t fromTripIdFld;
+  size_t toTripIdFld;
   size_t transferTypeFld;
   size_t minTransferTimeFld;
 };
@@ -32,6 +36,10 @@ struct Transfer {
 
   std::string fromStop;
   std::string toStop;
+  std::string fromRoute;
+  std::string toRoute;
+  std::string fromTrip;
+  std::string toTrip;
   TYPE type;
   int32_t tTime;
 };

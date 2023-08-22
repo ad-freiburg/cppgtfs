@@ -33,6 +33,10 @@ inline gtfs::flat::TransfersFlds Parser::getTransfersFlds(CsvParser* csvp) {
   gtfs::flat::TransfersFlds t;
   t.fromStopIdFld = csvp->getFieldIndex("from_stop_id");
   t.toStopIdFld = csvp->getFieldIndex("to_stop_id");
+  t.fromRouteIdFld = csvp->getFieldIndex("from_route_id");
+  t.toRouteIdFld = csvp->getFieldIndex("to_route_id");
+  t.fromTripIdFld = csvp->getFieldIndex("from_trip_id");
+  t.toTripIdFld = csvp->getFieldIndex("to_trip_id");
   t.transferTypeFld = csvp->getFieldIndex("transfer_type");
   t.minTransferTimeFld = csvp->getOptFieldIndex("min_transfer_time");
   return t;
@@ -42,8 +46,12 @@ inline gtfs::flat::TransfersFlds Parser::getTransfersFlds(CsvParser* csvp) {
 inline bool Parser::nextTransfer(CsvParser* csvp, gtfs::flat::Transfer* t,
                                  const gtfs::flat::TransfersFlds& flds) const {
   if (csvp->readNextLine()) {
-    t->fromStop = getString(*csvp, flds.fromStopIdFld);
-    t->toStop = getString(*csvp, flds.toStopIdFld);
+    t->fromStop = getString(*csvp, flds.fromStopIdFld, "");
+    t->toStop = getString(*csvp, flds.toStopIdFld, "");
+    t->fromRoute = getString(*csvp, flds.fromRouteIdFld, "");
+    t->toRoute = getString(*csvp, flds.toRouteIdFld, "");
+    t->fromTrip = getString(*csvp, flds.fromTripIdFld, "");
+    t->toTrip = getString(*csvp, flds.toTripIdFld, "");
     t->type = static_cast<gtfs::flat::Transfer::TYPE>(
         getRangeInteger(*csvp, flds.transferTypeFld, 0, 5, 0));
     t->tTime =
@@ -61,25 +69,84 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
   auto flds = getTransfersFlds(csvp);
 
   while (nextTransfer(csvp, &ft, flds)) {
-    StopT* fromStop = targetFeed->getStops().get(ft.fromStop);
-    StopT* toStop = targetFeed->getStops().get(ft.toStop);
+    StopT* fromStop = 0;
+    StopT* toStop = 0;
 
-    if (!fromStop) {
-      std::stringstream msg;
-      msg << "no stop with id '" << ft.fromStop
-          << "' defined in stops.txt, cannot "
-          << "reference here.";
-      throw ParserException(msg.str(), "from_stop_id", csvp->getCurLine());
+    RouteT* fromRoute = 0;
+    RouteT* toRoute = 0;
+
+    TripB<StopTimeT<StopT>, ServiceT, RouteT, ShapeT>* fromTrip = 0;
+    TripB<StopTimeT<StopT>, ServiceT, RouteT, ShapeT>* toTrip = 0;
+
+    if (ft.fromStop.size()) {
+      fromStop = targetFeed->getStops().get(ft.fromStop);
+      if (!fromStop) {
+        std::stringstream msg;
+        msg << "no stop with id '" << ft.fromStop
+            << "' defined in stops.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "from_stop_id", csvp->getCurLine());
+      }
     }
 
-    if (!toStop) {
-      std::stringstream msg;
-      msg << "no stop with id '" << ft.toStop
-          << "' defined in stops.txt, cannot "
-          << "reference here.";
-      throw ParserException(msg.str(), "to_stop_id", csvp->getCurLine());
+    if (ft.toStop.size()) {
+      toStop = targetFeed->getStops().get(ft.toStop);
+      if (!toStop) {
+        std::stringstream msg;
+        msg << "no stop with id '" << ft.toStop
+            << "' defined in stops.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "to_stop_id", csvp->getCurLine());
+      }
     }
-    Transfer t(fromStop, toStop, ft.type, ft.tTime);
+
+    if (ft.fromRoute.size()) {
+      fromRoute = targetFeed->getRoutes().get(ft.fromRoute);
+      if (!fromRoute) {
+        std::stringstream msg;
+        msg << "no route with id '" << ft.fromRoute
+            << "' defined in routes.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "from_route_id", csvp->getCurLine());
+      }
+    }
+
+    if (ft.toRoute.size()) {
+      toRoute = targetFeed->getRoutes().get(ft.toRoute);
+      if (!toRoute) {
+        std::stringstream msg;
+        msg << "no route with id '" << ft.toRoute
+            << "' defined in routes.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "to_route_id", csvp->getCurLine());
+      }
+    }
+
+    if (ft.fromTrip.size()) {
+      fromTrip = targetFeed->getTrips().get(ft.fromTrip);
+      if (!fromTrip) {
+        std::stringstream msg;
+        msg << "no trip with id '" << ft.fromTrip
+            << "' defined in trips.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "from_trip_id", csvp->getCurLine());
+      }
+    }
+
+    if (ft.toTrip.size()) {
+      toTrip = targetFeed->getTrips().get(ft.toTrip);
+      if (!toTrip) {
+        std::stringstream msg;
+        msg << "no trip with id '" << ft.toTrip
+            << "' defined in trips.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "to_trip_id", csvp->getCurLine());
+      }
+    }
+
+    Transfer<StopT, StopTimeT, ServiceT, RouteT, ShapeT> t(
+        fromStop, toStop, fromRoute, toRoute, fromTrip, toTrip, ft.type,
+        ft.tTime);
     targetFeed->getTransfers().push_back(t);
   }
 }

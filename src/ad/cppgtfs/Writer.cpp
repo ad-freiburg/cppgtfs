@@ -454,7 +454,8 @@ bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
 std::unique_ptr<CsvWriter> Writer::getTransfersCsvw(std::ostream* os) {
   return std::unique_ptr<CsvWriter>(new CsvWriter(
       os,
-      {"from_stop_id", "to_stop_id", "transfer_type", "min_transfer_time"}));
+      {"from_stop_id", "to_stop_id", "from_route_id", "to_route_id",
+       "from_trip_id", "to_trip_id", "transfer_type", "min_transfer_time"}));
 }
 
 // ____________________________________________________________________________
@@ -462,6 +463,10 @@ bool Writer::writeTransfer(const gtfs::flat::Transfer& t,
                            CsvWriter* csvw) const {
   csvw->writeString(t.fromStop);
   csvw->writeString(t.toStop);
+  csvw->writeString(t.fromRoute);
+  csvw->writeString(t.toRoute);
+  csvw->writeString(t.fromTrip);
+  csvw->writeString(t.toTrip);
   csvw->writeInt(t.type);
   if (t.tTime > -1)
     csvw->writeInt(t.tTime);
