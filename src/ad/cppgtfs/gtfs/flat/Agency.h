@@ -24,6 +24,7 @@ struct AgencyFlds {
   size_t agencyLangFld;
   size_t agencyPhoneFld;
   size_t agencyIdFld;
+  std::vector<size_t> addHeaders;
 };
 
 struct Agency {

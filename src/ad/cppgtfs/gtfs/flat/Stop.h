@@ -30,6 +30,7 @@ struct StopFlds {
   size_t locationTypeFld;
   size_t platformCodeFld;
   size_t levelIdFld;
+  std::vector<size_t> addHeaders;
 };
 
 struct Stop {

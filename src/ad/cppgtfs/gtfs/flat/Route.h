@@ -30,6 +30,7 @@ struct RouteFlds {
   size_t routeSortOrderFld;
   size_t continuousDropOffFld;
   size_t continuousPickupFld;
+  std::vector<size_t> addHeaders;
 };
 
 struct Route {

@@ -188,3 +188,35 @@ double FEEDB::getMaxLat() const { return _maxLat; }
 // ____________________________________________________________________________
 FEEDTPL
 double FEEDB::getMaxLon() const { return _maxLon; }
+
+// ____________________________________________________________________________
+FEEDTPL
+void FEEDB::addTripAddFld(const std::string& id,
+                                    const std::string& name,
+                                    const std::string& val) {
+  _tripAddFields[name][id] = val;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void FEEDB::addRouteAddFld(const std::string& id,
+                                    const std::string& name,
+                                    const std::string& val) {
+  _routeAddFields[name][id] = val;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void FEEDB::addStopAddFld(const std::string& id,
+                                    const std::string& name,
+                                    const std::string& val) {
+  _stopAddFields[name][id] = val;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void FEEDB::addAgencyAddFld(const std::string& id,
+                                    const std::string& name,
+                                    const std::string& val) {
+  _agencyAddFields[name][id] = val;
+}

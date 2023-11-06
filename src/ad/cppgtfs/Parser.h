@@ -104,12 +104,14 @@ class ParserException : public std::exception {
 
 class Parser {
  public:
-  // Default initialization.
-  Parser(const std::string& path) : Parser(path, false) {}
+  Parser(const std::string& path) : Parser(path, false, false) {}
 
-  Parser(const std::string& path, bool strict)
+  Parser(const std::string& path, bool strict) : Parser(path, strict, false) {}
+
+  Parser(const std::string& path, bool strict, bool parseAdditionalFields)
       : _path(path),
-        _strict(strict)
+        _strict(strict),
+        _parseAdditionalFields(parseAdditionalFields)
 #ifdef LIBZIP_FOUND
         ,
         _za(0)
@@ -283,6 +285,7 @@ class Parser {
  private:
   std::string _path;
   bool _strict;
+  bool _parseAdditionalFields;
 
 #ifdef LIBZIP_FOUND
   zip* _za;

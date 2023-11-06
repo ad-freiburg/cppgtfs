@@ -23,7 +23,7 @@ struct TripFlds {
   size_t bikesAllowedFld;
   size_t wheelchairAccessibleFld;
   size_t directionIdFld;
-
+  std::vector<size_t> addHeaders;
 };
 
 struct Trip {

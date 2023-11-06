@@ -374,6 +374,17 @@ inline gtfs::flat::AgencyFlds Parser::getAgencyFlds(CsvParser* csvp) {
   r.agencyLangFld = csvp->getOptFieldIndex("agency_lang");
   r.agencyPhoneFld = csvp->getOptFieldIndex("agency_phone");
   r.agencyIdFld = csvp->getOptFieldIndex("agency_id");
+
+  for (size_t i = 0; i < csvp->getNumHeaders(); i++) {
+    if (i == r.agencyNameFld || i == r.agencyUrlFld ||
+        i == r.agencyTimezoneFld || i == r.agencyEmailFld ||
+        i == r.agencyFareUrlFld || i == r.agencyLangFld ||
+        i == r.agencyPhoneFld || i == r.agencyIdFld) {
+      continue;
+    }
+    r.addHeaders.push_back(i);
+  }
+
   return r;
 }
 
@@ -546,6 +557,15 @@ void Parser::parseAgencies(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
           << "')";
       throw ParserException(msg.str(), "agency_id", csvp->getCurLine());
     }
+
+    if (_parseAdditionalFields) {
+      // additional fields
+      for (size_t fid : flds.addHeaders) {
+        const auto& val = getString(*csvp, fid, "");
+        if (val.size())
+          targetFeed->addAgencyAddFld(fa.id, csvp->getFieldName(fid), val);
+      }
+    }
   }
 
   if ((typename AgencyT::Ref()) == a) {
@@ -575,6 +595,18 @@ inline gtfs::flat::StopFlds Parser::getStopFlds(CsvParser* csvp) {
   r.locationTypeFld = csvp->getOptFieldIndex("location_type");
   r.platformCodeFld = csvp->getOptFieldIndex("platform_code");
   r.levelIdFld = csvp->getOptFieldIndex("level_id");
+
+  for (size_t i = 0; i < csvp->getNumHeaders(); i++) {
+    if (i == r.stopIdFld || i == r.stopNameFld || i == r.stopLatFld ||
+        i == r.stopLonFld || i == r.parentStationFld || i == r.stopCodeFld ||
+        i == r.stopDescFld || i == r.zoneIdFld || i == r.stopUrlFld ||
+        i == r.stopTimezoneFld || i == r.wheelchairBoardingFld ||
+        i == r.locationTypeFld || i == r.platformCodeFld || i == r.levelIdFld) {
+      continue;
+    }
+    r.addHeaders.push_back(i);
+  }
+
   return r;
 }
 
@@ -669,6 +701,15 @@ void Parser::parseStops(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
           << s.getId() << "')";
       throw ParserException(msg.str(), "stop_id", csvp->getCurLine());
     }
+
+    if (_parseAdditionalFields) {
+      // additional fields
+      for (size_t fid : flds.addHeaders) {
+        const auto& val = getString(*csvp, fid, "");
+        if (val.size())
+          targetFeed->addStopAddFld(fs.id, csvp->getFieldName(fid), val);
+      }
+    }
   }
 
   targetFeed->getStops().finalize();
@@ -703,6 +744,17 @@ inline gtfs::flat::RouteFlds Parser::getRouteFlds(CsvParser* csvp) {
   r.routeSortOrderFld = csvp->getOptFieldIndex("route_sort_order");
   r.continuousDropOffFld = csvp->getOptFieldIndex("continuous_drop_off");
   r.continuousPickupFld = csvp->getOptFieldIndex("continuous_pickup");
+
+  for (size_t i = 0; i < csvp->getNumHeaders(); i++) {
+    if (i == r.routeIdFld || i == r.routeLongNameFld ||
+        i == r.routeShortNameFld || i == r.routeTypeFld || i == r.routeUrlFld ||
+        i == r.routeDescFld || i == r.agencyIdFld || i == r.routeColorFld ||
+        i == r.routeTextColorFld || i == r.routeSortOrderFld ||
+        i == r.continuousDropOffFld || i == r.continuousPickupFld) {
+      continue;
+    }
+    r.addHeaders.push_back(i);
+  }
   return r;
 }
 
@@ -760,6 +812,15 @@ void Parser::parseRoutes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       msg << "'route_id' must be dataset unique. Collision with id '" << fr.id
           << "')";
       throw ParserException(msg.str(), "route_id", csvp->getCurLine());
+    }
+
+    if (_parseAdditionalFields) {
+      // additional fields
+      for (size_t fid : flds.addHeaders) {
+        const auto& val = getString(*csvp, fid, "");
+        if (val.size())
+          targetFeed->addRouteAddFld(fr.id, csvp->getFieldName(fid), val);
+      }
     }
   }
 
@@ -881,6 +942,17 @@ inline gtfs::flat::TripFlds Parser::getTripFlds(CsvParser* csvp) {
   t.bikesAllowedFld = csvp->getOptFieldIndex("bikes_allowed");
   t.wheelchairAccessibleFld = csvp->getOptFieldIndex("wheelchair_accessible");
   t.directionIdFld = csvp->getOptFieldIndex("direction_id");
+
+  for (size_t i = 0; i < csvp->getNumHeaders(); i++) {
+    if (i == t.shapeIdFld || i == t.tripIdFld || i == t.serviceIdFld ||
+        i == t.routeIdFld || i == t.blockIdFld || i == t.tripHeadsignFld ||
+        i == t.tripShortNameFld || i == t.bikesAllowedFld ||
+        i == t.wheelchairAccessibleFld || i == t.directionIdFld) {
+      continue;
+    }
+    t.addHeaders.push_back(i);
+  }
+
   return t;
 }
 
@@ -954,6 +1026,15 @@ void Parser::parseTrips(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       msg << "'trip_id' must be dataset unique. Collision with id '"
           << getString(*csvp, flds.tripIdFld) << "')";
       throw ParserException(msg.str(), "trip_id", csvp->getCurLine());
+    }
+
+    if (_parseAdditionalFields) {
+      // additional fields
+      for (size_t fid : flds.addHeaders) {
+        const auto& val = getString(*csvp, fid, "");
+        if (val.size())
+          targetFeed->addTripAddFld(ft.id, csvp->getFieldName(fid), val);
+      }
     }
   }
 

@@ -113,6 +113,9 @@ class CsvParser {
   // Get the number of columns. Will be zero before openFile has been called.
   size_t getNumColumns() const;
 
+  // Get the number of headers
+  size_t getNumHeaders() const { return _headerVec.size(); }
+
   // returns the index number of a field name
   size_t getFieldIndex(const string& fieldName) const;
 

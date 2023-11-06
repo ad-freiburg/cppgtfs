@@ -46,6 +46,11 @@ namespace ad {
 namespace cppgtfs {
 namespace gtfs {
 
+typedef std::unordered_map<std::string,
+                           std::unordered_map<std::string, std::string>>
+    AddFlds;
+
+
 FEEDTPL
 class FeedB {
   typedef AContainerT<AgencyT> Agencies;
@@ -129,6 +134,21 @@ class FeedB {
   const std::string& getPath() const { return _path; }
   void setPath(const std::string& p) { _path = p; }
 
+  void addTripAddFld(const std::string& id, const std::string& name,
+                     const std::string& val);
+  void addRouteAddFld(const std::string& id, const std::string& name,
+                     const std::string& val);
+  void addStopAddFld(const std::string& id, const std::string& name,
+                     const std::string& val);
+  void addAgencyAddFld(const std::string& id, const std::string& name,
+                     const std::string& val);
+
+
+  const AddFlds& getTripAddFlds() const { return _tripAddFields; }
+  const AddFlds& getRouteAddFlds() const { return _routeAddFields; }
+  const AddFlds& getStopAddFlds() const { return _stopAddFields; }
+  const AddFlds& getAgencyAddFlds() const { return _agencyAddFields; }
+
  private:
   Agencies _agencies;
   Stops _stops;
@@ -147,6 +167,11 @@ class FeedB {
   std::string _publisherName, _publisherUrl, _lang, _version, _path,
       _contactMail, _contactUrl, _defaultLang;
   ServiceDate _startDate, _endDate;
+
+  AddFlds _tripAddFields;
+  AddFlds _routeAddFields;
+  AddFlds _stopAddFields;
+  AddFlds _agencyAddFields;
 };
 
 typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare, Level,

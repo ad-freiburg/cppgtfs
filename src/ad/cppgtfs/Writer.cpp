@@ -15,6 +15,7 @@
 #include "gtfs/flat/Agency.h"
 
 using ad::cppgtfs::Writer;
+using ad::cppgtfs::gtfs::AddFlds;
 using ad::cppgtfs::gtfs::Agency;
 using ad::cppgtfs::gtfs::Route;
 using ad::cppgtfs::gtfs::Service;
@@ -140,14 +141,22 @@ bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
 }
 
 // ____________________________________________________________________________
-std::unique_ptr<CsvWriter> Writer::getAgencyCsvw(std::ostream* os) {
-  return std::unique_ptr<CsvWriter>(new CsvWriter(
-      os, {"agency_id", "agency_name", "agency_url", "agency_timezone",
-           "agency_lang", "agency_phone", "agency_fare_url", "agency_email"}));
+std::unique_ptr<CsvWriter> Writer::getAgencyCsvw(std::ostream* os,
+                                                 const gtfs::AddFlds& addFlds) {
+  ad::util::HeaderList headers{"agency_id",       "agency_name", "agency_url",
+                               "agency_timezone", "agency_lang", "agency_phone",
+                               "agency_fare_url", "agency_email"};
+
+  for (auto i : addFlds) {
+    headers.push_back(i.first);
+  }
+
+  return std::unique_ptr<CsvWriter>(new CsvWriter(os, headers));
 }
 
 // ____________________________________________________________________________
-bool Writer::writeAgency(const gtfs::flat::Agency& ag, CsvWriter* csvw) const {
+bool Writer::writeAgency(const gtfs::flat::Agency& ag, CsvWriter* csvw,
+                         const gtfs::AddFlds& addFlds) const {
   csvw->writeString(ag.id);
   csvw->writeString(ag.name);
   csvw->writeString(ag.url);
@@ -156,6 +165,16 @@ bool Writer::writeAgency(const gtfs::flat::Agency& ag, CsvWriter* csvw) const {
   csvw->writeString(ag.phone);
   csvw->writeString(ag.fare_url);
   csvw->writeString(ag.agency_email);
+
+  for (const auto& addFld : addFlds) {
+    auto v = addFld.second.find(ag.id);
+    if (v == addFld.second.end()) {
+      csvw->writeString("");
+    } else {
+      csvw->writeString(v->second);
+    }
+  }
+
   csvw->flushLine();
 
   return true;
@@ -163,25 +182,33 @@ bool Writer::writeAgency(const gtfs::flat::Agency& ag, CsvWriter* csvw) const {
 
 // ____________________________________________________________________________
 bool Writer::writeAgencies(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  auto csvw = getAgencyCsvw(s);
+  auto csvw = getAgencyCsvw(s, sourceFeed->getAgencyAddFlds());
   for (const auto& a : sourceFeed->getAgencies()) {
-    writeAgency(a.second->getFlat(), csvw.get());
+    writeAgency(a.second->getFlat(), csvw.get(), sourceFeed->getAgencyAddFlds());
   }
 
   return true;
 }
 
 // ____________________________________________________________________________
-std::unique_ptr<CsvWriter> Writer::getStopsCsvw(std::ostream* os) {
-  return std::unique_ptr<CsvWriter>(new CsvWriter(
-      os,
-      {"stop_id", "stop_code", "stop_name", "stop_desc", "stop_lat", "stop_lon",
-       "zone_id", "stop_url", "location_type", "parent_station",
-       "stop_timezone", "wheelchair_boarding", "platform_code", "level_id"}));
+std::unique_ptr<CsvWriter> Writer::getStopsCsvw(std::ostream* os,
+                                                const gtfs::AddFlds& addFlds) {
+  ad::util::HeaderList headers{
+      "stop_id",       "stop_code",      "stop_name",     "stop_desc",
+      "stop_lat",      "stop_lon",       "zone_id",       "stop_url",
+      "location_type", "parent_station", "stop_timezone", "wheelchair_boarding",
+      "platform_code", "level_id"};
+
+  for (auto i : addFlds) {
+    headers.push_back(i.first);
+  }
+
+  return std::unique_ptr<CsvWriter>(new CsvWriter(os, headers));
 }
 
 // ____________________________________________________________________________
-bool Writer::writeStop(const gtfs::flat::Stop& s, CsvWriter* csvw) const {
+bool Writer::writeStop(const gtfs::flat::Stop& s, CsvWriter* csvw,
+                       const gtfs::AddFlds& addFlds) const {
   csvw->writeString(s.id);
   csvw->writeString(s.code);
   csvw->writeString(s.name);
@@ -204,6 +231,16 @@ bool Writer::writeStop(const gtfs::flat::Stop& s, CsvWriter* csvw) const {
   csvw->writeInt(s.wheelchair_boarding);
   csvw->writeString(s.platform_code);
   csvw->writeString(s.level_id);
+
+  for (const auto& addFld : addFlds) {
+    auto v = addFld.second.find(s.id);
+    if (v == addFld.second.end()) {
+      csvw->writeString("");
+    } else {
+      csvw->writeString(v->second);
+    }
+  }
+
   csvw->flushLine();
 
   return true;
@@ -211,25 +248,34 @@ bool Writer::writeStop(const gtfs::flat::Stop& s, CsvWriter* csvw) const {
 
 // ____________________________________________________________________________
 bool Writer::writeStops(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  auto csvw = getStopsCsvw(s);
+  auto csvw = getStopsCsvw(s, sourceFeed->getStopAddFlds());
 
   for (const auto& t : sourceFeed->getStops()) {
-    writeStop(t.second->getFlat(), csvw.get());
+    writeStop(t.second->getFlat(), csvw.get(), sourceFeed->getStopAddFlds());
   }
 
   return true;
 }
 
 // ____________________________________________________________________________
-std::unique_ptr<CsvWriter> Writer::getTripsCsvw(std::ostream* os) {
-  return std::unique_ptr<CsvWriter>(new CsvWriter(
-      os, {"route_id", "service_id", "trip_id", "trip_headsign",
-           "trip_short_name", "direction_id", "block_id", "shape_id",
-           "wheelchair_accessible", "bikes_allowed"}));
+std::unique_ptr<CsvWriter> Writer::getTripsCsvw(std::ostream* os,
+                                                const AddFlds& addFlds) {
+  ad::util::HeaderList headers{
+      "route_id",      "service_id",      "trip_id",
+      "trip_headsign", "trip_short_name", "direction_id",
+      "block_id",      "shape_id",        "wheelchair_accessible",
+      "bikes_allowed"};
+
+  for (auto i : addFlds) {
+    headers.push_back(i.first);
+  }
+
+  return std::unique_ptr<CsvWriter>(new CsvWriter(os, headers));
 }
 
 // ____________________________________________________________________________
-bool Writer::writeTrip(const gtfs::flat::Trip& t, CsvWriter* csvw) const {
+bool Writer::writeTrip(const gtfs::flat::Trip& t, CsvWriter* csvw,
+                       const AddFlds& addFlds) const {
   csvw->writeString(t.route);
   csvw->writeString(t.service);
   csvw->writeString(t.id);
@@ -246,6 +292,16 @@ bool Writer::writeTrip(const gtfs::flat::Trip& t, CsvWriter* csvw) const {
     csvw->skip();
   csvw->writeInt(t.wc);
   csvw->writeInt(t.ba);
+
+  for (const auto& addFld : addFlds) {
+    auto v = addFld.second.find(t.id);
+    if (v == addFld.second.end()) {
+      csvw->writeString("");
+    } else {
+      csvw->writeString(v->second);
+    }
+  }
+
   csvw->flushLine();
   return true;
 }
@@ -253,10 +309,10 @@ bool Writer::writeTrip(const gtfs::flat::Trip& t, CsvWriter* csvw) const {
 // ____________________________________________________________________________
 bool Writer::writeTrips(gtfs::Feed* sourceFeed, std::ostream* s) const {
   bool hasFreqs = false;
-  auto csvw = getTripsCsvw(s);
+  auto csvw = getTripsCsvw(s, sourceFeed->getTripAddFlds());
   for (const auto& t : sourceFeed->getTrips()) {
     if (t.second->getFrequencies().size()) hasFreqs = true;
-    writeTrip(t.second->getFlat(), csvw.get());
+    writeTrip(t.second->getFlat(), csvw.get(), sourceFeed->getTripAddFlds());
   }
 
   return hasFreqs;
@@ -361,7 +417,8 @@ bool Writer::writeShapes(gtfs::Feed* sourceFeed, std::ostream* s) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeRoute(const gtfs::flat::Route& s, CsvWriter* csvw) const {
+bool Writer::writeRoute(const gtfs::flat::Route& s, CsvWriter* csvw,
+                        const AddFlds& addFlds) const {
   csvw->writeString(s.id);
   if (!s.agency.empty())
     csvw->writeString(s.agency);
@@ -393,26 +450,42 @@ bool Writer::writeRoute(const gtfs::flat::Route& s, CsvWriter* csvw) const {
   else
     csvw->skip();
 
+  for (const auto& addFld : addFlds) {
+    auto v = addFld.second.find(s.id);
+    if (v == addFld.second.end()) {
+      csvw->writeString("");
+    } else {
+      csvw->writeString(v->second);
+    }
+  }
+
   csvw->flushLine();
 
   return true;
 }
 
 // ____________________________________________________________________________
-std::unique_ptr<CsvWriter> Writer::getRoutesCsvw(std::ostream* os) {
-  return std::unique_ptr<CsvWriter>(new CsvWriter(
-      os, {"route_id", "agency_id", "route_short_name", "route_long_name",
-           "route_desc", "route_type", "route_url", "route_color",
-           "route_text_color", "route_sort_order", "continuous_pickup",
-           "continuous_drop_off"}));
+std::unique_ptr<CsvWriter> Writer::getRoutesCsvw(std::ostream* os,
+                                                 const gtfs::AddFlds& addFlds) {
+  ad::util::HeaderList headers{
+      "route_id",         "agency_id",         "route_short_name",
+      "route_long_name",  "route_desc",        "route_type",
+      "route_url",        "route_color",       "route_text_color",
+      "route_sort_order", "continuous_pickup", "continuous_drop_off"};
+
+  for (auto i : addFlds) {
+    headers.push_back(i.first);
+  }
+
+  return std::unique_ptr<CsvWriter>(new CsvWriter(os, headers));
 }
 
 // ____________________________________________________________________________
 bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  auto csvw = getAgencyCsvw(s);
+  auto csvw = getRoutesCsvw(s, sourceFeed->getRouteAddFlds());
   csvw->flushLine();
   for (const auto& a : sourceFeed->getRoutes()) {
-    writeRoute(a.second->getFlat(), csvw.get());
+    writeRoute(a.second->getFlat(), csvw.get(), sourceFeed->getRouteAddFlds());
   }
 
   return true;
