@@ -5,6 +5,8 @@
 #ifndef AD_CPPGTFS_GTFS_SHAPE_H_
 #define AD_CPPGTFS_GTFS_SHAPE_H_
 
+#include <stdint.h>
+
 #include <set>
 #include <string>
 #include <vector>

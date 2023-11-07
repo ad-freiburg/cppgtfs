@@ -5,6 +5,8 @@
 #ifndef AD_CPPGTFS_GTFS_STOPTIME_H_
 #define AD_CPPGTFS_GTFS_STOPTIME_H_
 
+#include <stdint.h>
+
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -58,13 +60,9 @@ class StopTime {
     return static_cast<PU_DO_TYPE>(_dropOffType);
   }
 
-  uint8_t getContinuousDropOff() const {
-    return _continuousDropOff;
-  }
+  uint8_t getContinuousDropOff() const { return _continuousDropOff; }
 
-  uint8_t getContinuousPickup() const {
-    return _continuousPickup;
-  }
+  uint8_t getContinuousPickup() const { return _continuousPickup; }
 
   float getShapeDistanceTravelled() const { return _shapeDistTravelled; }
   void setShapeDistanceTravelled(float d) { _shapeDistTravelled = d; }

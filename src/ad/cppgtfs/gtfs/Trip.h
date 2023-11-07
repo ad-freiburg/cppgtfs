@@ -6,9 +6,11 @@
 #define AD_CPPGTFS_GTFS_TRIP_H_
 
 #include <stdint.h>
+
 #include <algorithm>
 #include <set>
 #include <string>
+
 #include "Frequency.h"
 #include "Route.h"
 #include "Service.h"

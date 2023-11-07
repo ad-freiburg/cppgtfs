@@ -5,6 +5,8 @@
 #ifndef AD_CPPGTFS_GTFS_FLAT_TRANSFER_H_
 #define AD_CPPGTFS_GTFS_FLAT_TRANSFER_H_
 
+#include <stdint.h>
+
 #include <string>
 #include "../StopTime.h"
 

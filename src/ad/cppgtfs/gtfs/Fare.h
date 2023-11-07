@@ -5,8 +5,11 @@
 #ifndef AD_CPPGTFS_GTFS_FARE_H_
 #define AD_CPPGTFS_GTFS_FARE_H_
 
+#include <stdint.h>
+
 #include <string>
 #include <vector>
+
 #include "Agency.h"
 #include "Route.h"
 #include "flat/Fare.h"
@@ -35,7 +38,6 @@ class FareRule {
   const std::string& getOriginId() const { return _originId; }
   const std::string& getDestId() const { return _destId; }
   const std::string& getContainsId() const { return _containsId; }
-
 
  private:
   typename RouteT::Ref _route;

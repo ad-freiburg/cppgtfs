@@ -5,10 +5,12 @@
 #ifndef AD_CPPGTFS_GTFS_PATHWAY_H_
 #define AD_CPPGTFS_GTFS_PATHWAY_H_
 
+#include <stdint.h>
+
 #include <string>
 
-#include "flat/Pathway.h"
 #include "Stop.h"
+#include "flat/Pathway.h"
 
 using std::exception;
 using std::string;
@@ -38,7 +40,8 @@ class Pathway {
         _traversal_time(traversal_time),
         _stair_count(stair_count),
         _max_slope(max_slope),
-        _min_width(min_width), _signposted_as(signposted_as),
+        _min_width(min_width),
+        _signposted_as(signposted_as),
         _reversed_signposted_as(reversed_signposted_as) {}
 
   const std::string& getId() const { return _id; }

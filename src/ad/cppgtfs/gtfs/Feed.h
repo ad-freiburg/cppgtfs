@@ -5,6 +5,8 @@
 #ifndef AD_CPPGTFS_GTFS_FEED_H_
 #define AD_CPPGTFS_GTFS_FEED_H_
 
+#include <stdint.h>
+
 #include <iterator>
 #include <limits>
 #include <string>
@@ -49,7 +51,6 @@ namespace gtfs {
 typedef std::unordered_map<std::string,
                            std::unordered_map<std::string, std::string>>
     AddFlds;
-
 
 FEEDTPL
 class FeedB {
@@ -137,12 +138,11 @@ class FeedB {
   void addTripAddFld(const std::string& id, const std::string& name,
                      const std::string& val);
   void addRouteAddFld(const std::string& id, const std::string& name,
-                     const std::string& val);
+                      const std::string& val);
   void addStopAddFld(const std::string& id, const std::string& name,
                      const std::string& val);
   void addAgencyAddFld(const std::string& id, const std::string& name,
-                     const std::string& val);
-
+                       const std::string& val);
 
   const AddFlds& getTripAddFlds() const { return _tripAddFields; }
   const AddFlds& getRouteAddFlds() const { return _routeAddFields; }

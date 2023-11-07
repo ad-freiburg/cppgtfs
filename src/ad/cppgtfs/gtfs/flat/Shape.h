@@ -5,6 +5,8 @@
 #ifndef AD_CPPGTFS_GTFS_FLAT_SHAPE_H_
 #define AD_CPPGTFS_GTFS_FLAT_SHAPE_H_
 
+#include <stdint.h>
+
 #include <string>
 
 using std::exception;

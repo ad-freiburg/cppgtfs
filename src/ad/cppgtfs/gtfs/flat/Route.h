@@ -5,6 +5,8 @@
 #ifndef AD_CPPGTFS_GTFS_FLAT_ROUTE_H_
 #define AD_CPPGTFS_GTFS_FLAT_ROUTE_H_
 
+#include <stdint.h>
+
 #include <algorithm>
 #include <iomanip>
 #include <limits>

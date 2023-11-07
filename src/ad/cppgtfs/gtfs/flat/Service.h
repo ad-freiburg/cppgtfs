@@ -5,11 +5,13 @@
 #ifndef AD_CPPGTFS_GTFS_FLAT_SERVICE_H_
 #define AD_CPPGTFS_GTFS_FLAT_SERVICE_H_
 
+#include <stdint.h>
+
 #include <ctime>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-#include <iostream>
 
 using std::exception;
 using std::string;
@@ -46,8 +48,7 @@ class ServiceDate {
   explicit ServiceDate(uint32_t yyyymmdd)
       : _yyyymmdd(yyyymmdd - (1900 * 10000)) {}
 
-  ServiceDate()
-      : _yyyymmdd(0) {}
+  ServiceDate() : _yyyymmdd(0) {}
 
   uint32_t getYYYYMMDD() const { return _yyyymmdd + (1900 * 10000); }
 
@@ -69,9 +70,7 @@ class ServiceDate {
     _yyyymmdd = _yyyymmdd - (getYear() - 1900) * 10000 + (year - 1900) * 10000;
   }
 
-  bool empty() const {
-    return _yyyymmdd == 0;
-  }
+  bool empty() const { return _yyyymmdd == 0; }
 
   // returns a time struct of this date at 12:00
   tm getTimeStrc() const {
@@ -88,33 +87,27 @@ class ServiceDate {
   uint32_t _yyyymmdd : 24;
 };
 
-inline bool operator>(const ServiceDate& lh,
-                                  const ServiceDate& rh) {
+inline bool operator>(const ServiceDate& lh, const ServiceDate& rh) {
   return lh.getYYYYMMDD() > rh.getYYYYMMDD();
 }
 
-inline bool operator<(const ServiceDate& lh,
-                                  const ServiceDate& rh) {
+inline bool operator<(const ServiceDate& lh, const ServiceDate& rh) {
   return rh > lh;
 }
 
-inline bool operator==(const ServiceDate& lh,
-                                   const ServiceDate& rh) {
+inline bool operator==(const ServiceDate& lh, const ServiceDate& rh) {
   return !(lh > rh) && !(lh < rh);
 }
 
-inline bool operator!=(const ServiceDate& lh,
-                                   const ServiceDate& rh) {
+inline bool operator!=(const ServiceDate& lh, const ServiceDate& rh) {
   return !(lh == rh);
 }
 
-inline bool operator>=(const ServiceDate& lh,
-                                   const ServiceDate& rh) {
+inline bool operator>=(const ServiceDate& lh, const ServiceDate& rh) {
   return lh > rh || lh == rh;
 }
 
-inline bool operator<=(const ServiceDate& lh,
-                                   const ServiceDate& rh) {
+inline bool operator<=(const ServiceDate& lh, const ServiceDate& rh) {
   return rh > lh || lh == rh;
 }
 
@@ -126,9 +119,7 @@ inline ServiceDate operator+(const ServiceDate& lh, int i) {
   return ServiceDate(tStrc.tm_mday, tStrc.tm_mon + 1, tStrc.tm_year + 1900);
 }
 
-inline ServiceDate operator-(const ServiceDate& lh, int i) {
-  return lh + (-i);
-}
+inline ServiceDate operator-(const ServiceDate& lh, int i) { return lh + (-i); }
 
 inline ServiceDate operator--(ServiceDate& lh) {
   ServiceDate ret = lh - 1;
