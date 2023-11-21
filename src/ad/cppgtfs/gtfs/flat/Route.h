@@ -13,6 +13,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace ad {
 namespace cppgtfs {

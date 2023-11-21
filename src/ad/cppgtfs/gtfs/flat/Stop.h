@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <string>
+#include <vector>
 
 namespace ad {
 namespace cppgtfs {

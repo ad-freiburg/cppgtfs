@@ -6,6 +6,7 @@
 #define AD_CPPGTFS_GTFS_FLAT_AGENCY_H_
 
 #include <string>
+#include <vector>
 
 using std::exception;
 using std::string;
