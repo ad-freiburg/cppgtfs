@@ -118,9 +118,11 @@ class Parser {
 #endif
   {
     struct stat s;
-    stat(path.c_str(), &s);
+    auto res = stat(path.c_str(), &s);
 
-    if (s.st_mode & S_IFDIR) {
+    if (res != 0) {
+      throw ParserException("Cannot read from path", "", -1, path);
+    } else if (s.st_mode & S_IFDIR) {
       // we parse from raw CSV files
     } else {
       // we parse from a file, assume it is a ZIP file
