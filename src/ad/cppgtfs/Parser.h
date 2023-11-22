@@ -131,9 +131,10 @@ class Parser {
       _za = zip_open(path.c_str(), ZIP_RDONLY, &zipErr);
 
       if (_za == 0) {
-        char errBuf[100];
-        zip_error_to_str(errBuf, sizeof(errBuf), zipErr, errno);
-        throw ParserException(errBuf, "", -1, path);
+        zip_error_t zipErrT;
+        zip_error_init_with_code(&zipErrT, zipErr);
+        auto err = zip_error_strerror(&zipErrT);
+        throw ParserException(err, "", -1, path);
       }
     }
 #else
