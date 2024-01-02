@@ -85,9 +85,9 @@ bool CsvParser::readNextLine() {
   _currentItems.clear();
   _currentModItems.clear();
 
-  if (lineLen > 2 && static_cast<int>(_buff[s]) == -17 &&
-      static_cast<int>(_buff[s + 1]) == -69 &&
-      static_cast<int>(_buff[s + 2]) == -65) {
+  if (lineLen > 2 && static_cast<signed char>(_buff[s]) == -17 &&
+      static_cast<signed char>(_buff[s + 1]) == -69 &&
+      static_cast<signed char>(_buff[s + 2]) == -65) {
     pos = 3;
     lastPos = pos;
   }
