@@ -231,9 +231,6 @@ struct Route {
       case 115:
       case 117:
       case 300:
-      case 400:
-      case 403:
-      case 404:
       case 1503:
         return Route::TYPE::RAIL;
       case 3:
@@ -274,8 +271,11 @@ struct Route {
       case 1507:
         return Route::TYPE::BUS;
       case 1:
+      case 400:
       case 401:
       case 402:
+      case 403:
+      case 404:
       case 500:
       case 600:
         return Route::TYPE::SUBWAY;
