@@ -566,9 +566,6 @@ struct Route {
       ret.insert(flat::Route::TYPE::EXT_115);
       ret.insert(flat::Route::TYPE::EXT_117);
       ret.insert(flat::Route::TYPE::EXT_300);
-      ret.insert(flat::Route::TYPE::EXT_400);
-      ret.insert(flat::Route::TYPE::EXT_403);
-      ret.insert(flat::Route::TYPE::EXT_404);
       ret.insert(flat::Route::TYPE::EXT_1503);
       return ret;
     }
@@ -604,8 +601,11 @@ struct Route {
 
     if (name == "subway" || name == "metro") {
       ret.insert(flat::Route::TYPE::SUBWAY);
+      ret.insert(flat::Route::TYPE::EXT_400);
       ret.insert(flat::Route::TYPE::EXT_401);
       ret.insert(flat::Route::TYPE::EXT_402);
+      ret.insert(flat::Route::TYPE::EXT_403);
+      ret.insert(flat::Route::TYPE::EXT_404);
       ret.insert(flat::Route::TYPE::EXT_500);
       ret.insert(flat::Route::TYPE::EXT_600);
       return ret;
