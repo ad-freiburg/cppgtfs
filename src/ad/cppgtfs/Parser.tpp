@@ -85,7 +85,8 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         msg << "no stop with id '" << ft.fromStop
             << "' defined in stops.txt, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "from_stop_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "from_stop_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -96,7 +97,8 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         msg << "no stop with id '" << ft.toStop
             << "' defined in stops.txt, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "to_stop_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "to_stop_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -107,7 +109,8 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         msg << "no route with id '" << ft.fromRoute
             << "' defined in routes.txt, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "from_route_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "from_route_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -118,7 +121,8 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         msg << "no route with id '" << ft.toRoute
             << "' defined in routes.txt, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "to_route_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "to_route_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -129,7 +133,8 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         msg << "no trip with id '" << ft.fromTrip
             << "' defined in trips.txt, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "from_trip_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "from_trip_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -140,7 +145,8 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         msg << "no trip with id '" << ft.toTrip
             << "' defined in trips.txt, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "to_trip_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "to_trip_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -190,7 +196,8 @@ void Parser::parseFrequencies(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
     if (!trip) {
       std::stringstream msg;
       msg << "trip '" << ff.tripId << "' not found.";
-      throw ParserException(msg.str(), "trip_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "trip_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     trip->addFrequency(f);
@@ -245,7 +252,8 @@ void Parser::parseFareAttributes(gtfs::FEEDB* targetFeed,
         std::stringstream msg;
         msg << "no agency with id '" << ff.agency << "' defined, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "agency_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "agency_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -294,14 +302,16 @@ void Parser::parseFareRules(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "no fare with id '" << fr.fare << "' defined, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "fare_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "fare_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (!fr.route.empty() && !route) {
       std::stringstream msg;
       msg << "no route with id '" << fr.route << "' defined, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "route_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "route_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (!fr.originZone.empty() &&
@@ -310,7 +320,8 @@ void Parser::parseFareRules(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       msg << "no zone with id '" << fr.originZone
           << "' defined in stops.txt, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "origin_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "origin_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (!fr.destZone.empty() && !targetFeed->getZones().count(fr.destZone)) {
@@ -318,7 +329,8 @@ void Parser::parseFareRules(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       msg << "no zone with id '" << fr.destZone
           << "' defined in stops.txt, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "destination_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "destination_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (!fr.containsZone.empty() &&
@@ -327,7 +339,8 @@ void Parser::parseFareRules(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       msg << "no zone with id '" << fr.containsZone
           << "' defined in stops.txt, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "contains_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "contains_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     FareRule<RouteT> r(route, fr.originZone, fr.destZone, fr.containsZone);
@@ -444,7 +457,8 @@ void Parser::parseLevels(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "'level_id' must be dataset unique. Collision with id '" << fa.id
           << "')";
-      throw ParserException(msg.str(), "level_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "level_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
   }
 
@@ -514,7 +528,8 @@ void Parser::parsePathways(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       msg << "no stop with id '" << fa.from_stop_id
           << "' defined in stops.txt, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "from_stop_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "from_stop_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (!toStop) {
@@ -522,7 +537,8 @@ void Parser::parsePathways(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       msg << "no stop with id '" << fa.to_stop_id
           << "' defined in stops.txt, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "to_stop_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "to_stop_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if ((typename PathwayT::Ref()) ==
@@ -533,7 +549,8 @@ void Parser::parsePathways(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "'pathway_id' must be dataset unique. Collision with id '" << fa.id
           << "')";
-      throw ParserException(msg.str(), "pathway_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "pathway_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
   }
 
@@ -555,7 +572,8 @@ void Parser::parseAgencies(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "'agency_id' must be dataset unique. Collision with id '" << fa.id
           << "')";
-      throw ParserException(msg.str(), "agency_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "agency_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (_parseAdditionalFields) {
@@ -572,7 +590,7 @@ void Parser::parseAgencies(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
     throw ParserException(
         "the feed has no agency defined."
         " This is a required field.",
-        "", 1);
+        "", 1, csvp->getReadablePath());
   }
 
   targetFeed->getAgencies().finalize();
@@ -635,11 +653,13 @@ inline bool Parser::nextStop(CsvParser* csvp, gtfs::flat::Stop* s,
 
       if (s->lat > 90 || s->lat < -90)
         throw ParserException("latitude must be between -90.0 and 90.0",
-                              "stop_lat", csvp->getCurLine());
+                              "stop_lat", csvp->getCurLine(),
+                              csvp->getReadablePath());
 
       if (s->lng > 180 || s->lng < -180)
         throw ParserException("longitude must be between -180.0 and 180.0",
-                              "stop_lon", csvp->getCurLine());
+                              "stop_lon", csvp->getCurLine(),
+                              csvp->getReadablePath());
     } else {
       s->lat = getDouble(*csvp, flds.stopLatFld, 99999);
       s->lng = getDouble(*csvp, flds.stopLonFld, 99999);
@@ -672,7 +692,8 @@ void Parser::parseStops(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         std::stringstream msg;
         msg << "no stop with id '" << fs.level_id << "' defined, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "level_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "level_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -686,7 +707,7 @@ void Parser::parseStops(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         throw ParserException(
             "a stop with location_type 'station' (1) cannot"
             " have a parent station",
-            "parent_station", csvp->getCurLine());
+            "parent_station", csvp->getCurLine(), csvp->getReadablePath());
       }
 
       parentStations[s.getId()] =
@@ -699,7 +720,8 @@ void Parser::parseStops(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "'stop_id' must be dataset unique. Collision with id '"
           << s.getId() << "')";
-      throw ParserException(msg.str(), "stop_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "stop_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (_parseAdditionalFields) {
@@ -722,7 +744,8 @@ void Parser::parseStops(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "no stop with id '" << ps.second.second << "' defined, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "parent_station", ps.second.first);
+      throw ParserException(msg.str(), "parent_station", ps.second.first,
+                            csvp->getReadablePath());
     } else {
       targetFeed->getStops().get(ps.first)->setParentStation(parentStation);
     }
@@ -800,7 +823,8 @@ void Parser::parseRoutes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         std::stringstream msg;
         msg << "no agency with id '" << fr.agency << "' defined, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "agency_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "agency_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -811,7 +835,8 @@ void Parser::parseRoutes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "'route_id' must be dataset unique. Collision with id '" << fr.id
           << "')";
-      throw ParserException(msg.str(), "route_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "route_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (_parseAdditionalFields) {
@@ -877,7 +902,8 @@ void Parser::parseCalendar(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "'service_id' must be unique in calendars.txt. Collision with id '"
           << fc.id << "')";
-      throw ParserException(msg.str(), "service_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "service_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
   }
 }
@@ -992,7 +1018,8 @@ void Parser::parseTrips(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "no route with id '" << ft.route << "' defined, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "route_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "route_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     typename ShapeT::Ref tripShape = (typename ShapeT::Ref());
@@ -1003,7 +1030,8 @@ void Parser::parseTrips(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
         std::stringstream msg;
         msg << "no shape with id '" << ft.shape << "' defined, cannot "
             << "reference here.";
-        throw ParserException(msg.str(), "shape_id", csvp->getCurLine());
+        throw ParserException(msg.str(), "shape_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
       }
     }
 
@@ -1014,7 +1042,8 @@ void Parser::parseTrips(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "no service with id '" << ft.service << "' defined, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "service_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "service_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (typename TripB<StopTimeT<StopT>, ServiceT, RouteT, ShapeT>::Ref() ==
@@ -1025,7 +1054,8 @@ void Parser::parseTrips(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "'trip_id' must be dataset unique. Collision with id '"
           << getString(*csvp, flds.tripIdFld) << "')";
-      throw ParserException(msg.str(), "trip_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "trip_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (_parseAdditionalFields) {
@@ -1070,7 +1100,8 @@ inline bool Parser::nextShapePoint(CsvParser* csvp, gtfs::flat::ShapePoint* c,
               "negative values not supported for distances"
               " (value was: " +
                   std::to_string(c->travelDist),
-              "shape_dist_traveled", csvp->getCurLine());
+              "shape_dist_traveled", csvp->getCurLine(),
+              csvp->getReadablePath());
         }
       }
     }
@@ -1090,13 +1121,7 @@ void Parser::parseStops(gtfs::FEEDB* targetFeed) const {
     if (!csvp->isGood()) fileNotFound(curFile);
     parseStops(targetFeed, csvp.get());
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1109,13 +1134,7 @@ void Parser::parseRoutes(gtfs::FEEDB* targetFeed) const {
     if (!csvp->isGood()) fileNotFound(curFile);
     parseRoutes(targetFeed, csvp.get());
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1129,13 +1148,7 @@ void Parser::parseCalendar(gtfs::FEEDB* targetFeed) const {
       parseCalendar(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1149,13 +1162,7 @@ void Parser::parseCalendarDates(gtfs::FEEDB* targetFeed) const {
       parseCalendarDates(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1170,13 +1177,7 @@ void Parser::parseFeedInfo(gtfs::FEEDB* targetFeed) const {
       parseFeedInfo(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1190,13 +1191,7 @@ void Parser::parsePathways(gtfs::FEEDB* targetFeed) const {
       parsePathways(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1210,13 +1205,7 @@ void Parser::parseLevels(gtfs::FEEDB* targetFeed) const {
       parseLevels(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1229,13 +1218,7 @@ void Parser::parseAgencies(gtfs::FEEDB* targetFeed) const {
     if (!csvp->isGood()) fileNotFound(curFile);
     parseAgencies(targetFeed, csvp.get());
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1249,13 +1232,7 @@ void Parser::parseShapes(gtfs::FEEDB* targetFeed) const {
       parseShapes(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1268,13 +1245,7 @@ void Parser::parseTrips(gtfs::FEEDB* targetFeed) const {
     if (!csvp->isGood()) fileNotFound(curFile);
     parseTrips(targetFeed, csvp.get());
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1287,13 +1258,7 @@ void Parser::parseStopTimes(gtfs::FEEDB* targetFeed) const {
     if (!csvp->isGood()) fileNotFound(curFile);
     parseStopTimes(targetFeed, csvp.get());
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1307,13 +1272,7 @@ void Parser::parseFareRules(gtfs::FEEDB* targetFeed) const {
       parseFareRules(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1327,13 +1286,7 @@ void Parser::parseFareAttributes(gtfs::FEEDB* targetFeed) const {
       parseFareAttributes(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1347,13 +1300,7 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed) const {
       parseTransfers(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1367,13 +1314,7 @@ void Parser::parseFrequencies(gtfs::FEEDB* targetFeed) const {
       parseFrequencies(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
   }
 }
 
@@ -1397,7 +1338,7 @@ void Parser::parseShapes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
             "shape_pt_sequence collision,"
             "shape_pt_sequence has "
             "to be increasing for a single shape.",
-            "shape_pt_sequence", csvp->getCurLine());
+            "shape_pt_sequence", csvp->getCurLine(), csvp->getReadablePath());
       }
     }
   }
@@ -1454,7 +1395,7 @@ inline bool Parser::nextStopTime(CsvParser* csvp, gtfs::flat::StopTime* s,
     if (s->isTimepoint && s->at.empty() && s->dt.empty()) {
       throw ParserException(
           "if arrival_time and departure_time are empty, timepoint cannot be 1",
-          "timepoint", csvp->getCurLine());
+          "timepoint", csvp->getCurLine(), csvp->getReadablePath());
     }
 
     s->shapeDistTravelled = -1;  // using -1 as a null value here
@@ -1467,7 +1408,8 @@ inline bool Parser::nextStopTime(CsvParser* csvp, gtfs::flat::StopTime* s,
               "negative values not supported for distances"
               " (value was: " +
                   std::to_string(s->shapeDistTravelled),
-              "shape_dist_traveled", csvp->getCurLine());
+              "shape_dist_traveled", csvp->getCurLine(),
+              csvp->getReadablePath());
         }
       }
     }
@@ -1494,7 +1436,8 @@ void Parser::parseStopTimes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       std::stringstream msg;
       msg << "no stop with id '" << fst.s << "' defined in stops.txt, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "stop_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "stop_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (!trip) {
@@ -1502,7 +1445,8 @@ void Parser::parseStopTimes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
       msg << "no trip with id '" << fst.trip
           << "' defined in trips.txt, cannot "
           << "reference here.";
-      throw ParserException(msg.str(), "trip_id", csvp->getCurLine());
+      throw ParserException(msg.str(), "trip_id", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     StopTimeT<StopT> st(fst.at, fst.dt, stop, fst.sequence, fst.headsign,
@@ -1515,14 +1459,15 @@ void Parser::parseStopTimes(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
                                 "' is later than departure time '" +
                                 st.getDepartureTime().toString() +
                                 "'. You cannot depart earlier than you arrive.",
-                            "departure_time", csvp->getCurLine());
+                            "departure_time", csvp->getCurLine(),
+                            csvp->getReadablePath());
     }
 
     if (!trip->addStopTime(st)) {
       throw ParserException(
           "stop_sequence collision, stop_sequence has "
           "to be increasing for a single trip.",
-          "stop_sequence", csvp->getCurLine());
+          "stop_sequence", csvp->getCurLine(), csvp->getReadablePath());
     }
   }
 }
@@ -1537,7 +1482,7 @@ std::string Parser::getString(const CsvParser& csv, size_t field) const {
   const char* r = csv.getTString(field);
   if (r[0] == 0) {
     throw ParserException("expected non-empty string", csv.getFieldName(field),
-                          csv.getCurLine());
+                          csv.getCurLine(), csv.getReadablePath());
   }
   return r;
 }
@@ -1574,7 +1519,8 @@ int64_t Parser::getRangeInteger(const CsvParser& csv, size_t field,
   if (ret < minv || ret > maxv) {
     std::stringstream msg;
     msg << "expected integer in range [" << minv << "," << maxv << "]";
-    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
+    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine(),
+                          csv.getReadablePath());
   }
 
   return ret;
@@ -1589,13 +1535,18 @@ int64_t Parser::getRangeInteger(const CsvParser& csv, size_t field,
     ret = csv.getLong(field);
 
     if (ret < minv || ret > maxv) {
+      std::stringstream msg;
+      msg << "expected integer in range [" << minv << "," << maxv << "]";
       if (_strict) {
-        std::stringstream msg;
-        msg << "expected integer in range [" << minv << "," << maxv << "]";
         throw ParserException(msg.str(), csv.getFieldName(field),
-                              csv.getCurLine());
-      } else
+                              csv.getCurLine(), csv.getReadablePath());
+      } else {
+        if (_warnCb)
+          _warnCb(ParserException(msg.str(), csv.getFieldName(field),
+                                  csv.getCurLine(), csv.getReadablePath())
+                      .what());
         return def;
+      }
     }
 
     return ret;
@@ -1623,26 +1574,34 @@ uint32_t Parser::getColorFromHexString(const CsvParser& csv, size_t field,
   try {
     ret = std::stoul("0x" + color_string, &chars_processed, 16);
   } catch (const std::exception& e) {
+    std::stringstream msg;
+    msg << "expected a 6-character hexadecimal color string, found '"
+        << color_string << "' instead. (Error while parsing was: " << e.what()
+        << ")";
     if (_strict) {
-      std::stringstream msg;
-      msg << "expected a 6-character hexadecimal color string, found '"
-          << color_string << "' instead. (Error while parsing was: " << e.what()
-          << ")";
       throw ParserException(msg.str(), csv.getFieldName(field),
-                            csv.getCurLine());
+                            csv.getCurLine(), csv.getReadablePath());
     } else {
+      if (_warnCb)
+        _warnCb(ParserException(msg.str(), csv.getFieldName(field),
+                                csv.getCurLine(), csv.getReadablePath())
+                    .what());
       return std::stoul("0x" + def, &chars_processed, 16);
     }
   }
 
   if (color_string.size() != 6 || chars_processed != 8) {
+    std::stringstream msg;
+    msg << "expected a 6-character hexadecimal color string, found '"
+        << color_string << "' instead.";
     if (_strict) {
-      std::stringstream msg;
-      msg << "expected a 6-character hexadecimal color string, found '"
-          << color_string << "' instead.";
       throw ParserException(msg.str(), csv.getFieldName(field),
-                            csv.getCurLine());
+                            csv.getCurLine(), csv.getReadablePath());
     } else {
+      if (_warnCb)
+        _warnCb(ParserException(msg.str(), csv.getFieldName(field),
+                                csv.getCurLine(), csv.getReadablePath())
+                    .what());
       return std::stoul("0x" + def, &chars_processed, 16);
     }
   }
@@ -1665,7 +1624,7 @@ ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field,
       std::stringstream msg;
       msg << "expected a date in the YYYYMMDD format";
       throw ParserException(msg.str(), csv.getFieldName(field),
-                            csv.getCurLine());
+                            csv.getCurLine(), csv.getReadablePath());
     }
   }
   const char* val = csv.getTString(field);
@@ -1678,19 +1637,21 @@ ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field,
       msg << "expected a date in the YYYYMMDD format, found '"
           << csv.getTString(field) << "' instead.";
       throw ParserException(msg.str(), csv.getFieldName(field),
-                            csv.getCurLine());
+                            csv.getCurLine(), csv.getReadablePath());
     }
     return ServiceDate(yyyymmdd);
   } catch (const std::out_of_range& e) {
     std::stringstream msg;
     msg << "expected a date in the YYYYMMDD format, found '" << val
         << "' instead. (Integer out of range).";
-    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
+    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine(),
+                          csv.getReadablePath());
   } catch (const std::invalid_argument& e) {
     std::stringstream msg;
     msg << "expected a date in the YYYYMMDD format, found '" << val
         << "' instead.";
-    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
+    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine(),
+                          csv.getReadablePath());
   }
 }
 
@@ -1739,7 +1700,8 @@ Time Parser::getTime(const CsvParser& csv, size_t field) const {
     std::stringstream msg;
     msg << "expected a time in HH:MM:SS (or H:MM:SS) format, found '"
         << csv.getTString(field) << "' instead. (" << e.what() << ")";
-    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
+    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine(),
+                          csv.getReadablePath());
   }
 }
 
@@ -1750,7 +1712,8 @@ gtfs::flat::Route::TYPE Parser::getRouteType(const CsvParser& csv, size_t field,
   if (t == gtfs::flat::Route::NONE) {
     std::stringstream msg;
     msg << "route type '" << tn << "' not supported.";
-    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
+    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine(),
+                          csv.getReadablePath());
   }
   return t;
 }
@@ -1770,7 +1733,9 @@ inline uint32_t Parser::atoi(const char** p) {
 inline std::unique_ptr<CsvParser> Parser::getCsvParser(
     const std::string& file) const {
 #ifdef LIBZIP_FOUND
-  if (_za) return std::unique_ptr<CsvParser>(new ZipCsvParser(_za, file));
+  if (_za)
+    return std::unique_ptr<CsvParser>(
+        new ZipCsvParser(_za, file, _path + "/" + file));
 #endif
   return std::unique_ptr<CsvParser>(new CsvParser(_path + "/" + file));
 }

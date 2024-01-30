@@ -19,7 +19,7 @@
 using ad::util::ZipCsvParser;
 
 // _____________________________________________________________________________
-ZipCsvParser::ZipCsvParser(zip_file_t* zf) : _zf(zf) {
+ZipCsvParser::ZipCsvParser(zip_file_t* zf) : _zf(zf), _readablePath("?") {
   readNextLine();
   parseHeader();
 }
@@ -30,7 +30,13 @@ ZipCsvParser::~ZipCsvParser() {
 }
 
 // _____________________________________________________________________________
-ZipCsvParser::ZipCsvParser(zip* za, const std::string& filename) : _zf(0) {
+ZipCsvParser::ZipCsvParser(zip* za, const std::string& filename)
+    : ZipCsvParser(za, filename, filename) {}
+
+// _____________________________________________________________________________
+ZipCsvParser::ZipCsvParser(zip* za, const std::string& filename,
+                           const std::string& readablePath)
+    : _zf(0), _readablePath(readablePath) {
   // locate file in zip
   auto fi = zip_name_locate(za, filename.c_str(), ZIP_FL_NOCASE | ZIP_FL_NODIR);
 
@@ -53,9 +59,7 @@ ZipCsvParser::ZipCsvParser(zip* za, const std::string& filename) : _zf(0) {
 }
 
 // _____________________________________________________________________________
-bool ZipCsvParser::isGood() const {
-  return _zf != 0;
-}
+bool ZipCsvParser::isGood() const { return _zf != 0; }
 
 // _____________________________________________________________________________
 std::pair<size_t, size_t> ZipCsvParser::fetchLine() {

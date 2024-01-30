@@ -31,22 +31,29 @@ CsvParser::CsvParser() : _stream(0) {}
 CsvParser::~CsvParser() {}
 
 // _____________________________________________________________________________
-CsvParser::CsvParser(std::istream* stream) : _stream(stream) {
+CsvParser::CsvParser(std::istream* stream, const std::string& readablePath)
+    : _stream(stream), _readablePath(readablePath) {
   readNextLine();
   parseHeader();
 }
 
 // _____________________________________________________________________________
-CsvParser::CsvParser(const std::string& path) : _stream(&_ifstream) {
+CsvParser::CsvParser(std::istream* stream)
+    : _stream(stream), _readablePath("?") {
+  readNextLine();
+  parseHeader();
+}
+
+// _____________________________________________________________________________
+CsvParser::CsvParser(const std::string& path)
+    : _stream(&_ifstream), _readablePath(path) {
   _ifstream.open(path);
   readNextLine();
   parseHeader();
 }
 
 // _____________________________________________________________________________
-bool CsvParser::isGood() const {
-  return _stream != 0 && _stream->good();
-}
+bool CsvParser::isGood() const { return _stream != 0 && _stream->good(); }
 
 // _____________________________________________________________________________
 std::pair<size_t, size_t> CsvParser::fetchLine() {
@@ -182,14 +189,14 @@ const char* CsvParser::getTString(const size_t i) const {
 double CsvParser::getDouble(const size_t i) const {
   if (i >= _currentItems.size())
     throw CsvParserException("expected float number", i, getFieldName(i),
-                             _curLine);
+                             _curLine, _readablePath);
 
   bool fail = false;
   double ret = atof(_currentItems[i], 38, &fail);
   if (fail) {
     std::string a = "expected float number, found ";
     a += _currentItems[i];
-    throw CsvParserException(a, i, getFieldName(i), _curLine);
+    throw CsvParserException(a, i, getFieldName(i), _curLine, _readablePath);
   }
   return ret;
 }
@@ -198,12 +205,12 @@ double CsvParser::getDouble(const size_t i) const {
 int32_t CsvParser::getLong(const size_t i) const {
   if (i >= _currentItems.size())
     throw CsvParserException("expected non-negative integer number", i,
-                             getFieldName(i), _curLine);
+                             getFieldName(i), _curLine, _readablePath);
   bool fail = false;
   uint32_t ret = atoi(_currentItems[i], &fail);
   if (fail)
     throw CsvParserException("expected non-negative integer number", i,
-                             getFieldName(i), _curLine);
+                             getFieldName(i), _curLine, _readablePath);
   return ret;
 }
 
@@ -244,7 +251,7 @@ size_t CsvParser::getNumColumns() const { return _currentItems.size(); }
 size_t CsvParser::getFieldIndex(const string& fieldName) const {
   if (_headerMap.find(fieldName) == _headerMap.end())
     throw CsvParserException("field " + fieldName + " does not exist.", -1,
-                             fieldName, _curLine);
+                             fieldName, _curLine, _readablePath);
   return _headerMap.find(fieldName)->second;
 }
 

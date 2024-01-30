@@ -8,6 +8,8 @@
 
 #ifdef LIBZIP_FOUND
 #include <stdint.h>
+#include <zip.h>
+
 #include <exception>
 #include <iostream>
 #include <istream>
@@ -15,7 +17,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <zip.h>
+
 #include "CsvParser.h"
 
 using std::exception;
@@ -34,16 +36,22 @@ class ZipCsvParser : public CsvParser {
   explicit ZipCsvParser(zip_file_t* zf);
 
   // Initializes the parser by opening a file in a ZIP
-  explicit ZipCsvParser(zip* za, const std::string& filename);
+  ZipCsvParser(zip* za, const std::string& filename);
+
+  // Initializes the parser by opening a file in a ZIP, with a readable name
+  ZipCsvParser(zip* za, const std::string& filename,
+               const std::string& readableName);
 
   virtual ~ZipCsvParser();
 
   virtual std::pair<size_t, size_t> fetchLine();
   virtual bool isGood() const;
- private:
+  virtual const string getReadablePath() const { return _readablePath; }
 
+ private:
   // The handle to the file.
   zip_file_t* _zf;
+  std::string _readablePath;
 
   int64_t _lastLine = -1;
   int64_t _bufSize = 0;

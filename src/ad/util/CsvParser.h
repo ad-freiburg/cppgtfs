@@ -7,11 +7,12 @@
 #define AD_UTIL_CSVPARSER_H_
 
 #include <stdint.h>
+
 #include <exception>
+#include <fstream>
 #include <iostream>
 #include <istream>
 #include <sstream>
-#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -34,8 +35,12 @@ static const size_t BUFFER_S = 50000;
 class CsvParserException : public exception {
  public:
   CsvParserException(std::string msg, int index, std::string fieldName,
-                     uint64_t line)
-      : _msg(msg), _index(index), _fieldName(fieldName), _line(line) {}
+                     uint64_t line, std::string fileName)
+      : _msg(msg),
+        _index(index),
+        _fieldName(fieldName),
+        _line(line),
+        _fileName(fileName) {}
   ~CsvParserException() throw() {}
 
   virtual const char* what() const throw() {
@@ -51,6 +56,7 @@ class CsvParserException : public exception {
 
   const std::string& getMsg() const { return _msg; }
   const std::string& getFieldName() const { return _fieldName; }
+  const std::string& getFileName() const { return _fileName; }
 
  private:
   mutable std::string _what_msg;
@@ -58,6 +64,7 @@ class CsvParserException : public exception {
   int _index;
   std::string _fieldName;
   uint64_t _line;
+  std::string _fileName;
 };
 
 class CsvParser {
@@ -69,6 +76,10 @@ class CsvParser {
 
   // Initializes the parser by opening the file and reading the table header.
   explicit CsvParser(std::istream* stream);
+
+  // Initializes the parser by opening the file and reading the table header,
+  // with a readable file path displayed on errors
+  CsvParser(std::istream* stream, const std::string& path);
 
   // Initializes the parser by opening the file and reading the table header.
   explicit CsvParser(const std::string& path);
@@ -123,6 +134,8 @@ class CsvParser {
 
   const string getFieldName(size_t i) const;
 
+  virtual const string getReadablePath() const { return _readablePath; }
+
   virtual bool isGood() const;
 
  protected:
@@ -152,13 +165,15 @@ class CsvParser {
 
   static double atof(const char* p, uint8_t mn, bool* fail);
   static uint32_t atoi(const char* p, bool* fail);
- private:
 
+ private:
   // The handle to the file.
   std::istream* _stream;
 
   // Used internally if no external stream is provided
   std::ifstream _ifstream;
+
+  std::string _readablePath;
 };
 }  // namespace util
 }  // namespace ad
