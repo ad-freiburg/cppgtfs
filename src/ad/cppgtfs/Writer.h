@@ -115,6 +115,8 @@ class Writer {
   bool writePathway(const gtfs::flat::Pathway& ag, CsvWriter* csvw) const;
   bool writePathways(gtfs::Feed* f, std::ostream* os) const;
 
+  bool writeAttribution(gtfs::Feed*, std::ostream* os) const;
+
   static void cannotWrite(const std::string& file);
 
   static std::unique_ptr<CsvWriter> getAgencyCsvw(std::ostream* os,
@@ -136,6 +138,7 @@ class Writer {
   static std::unique_ptr<CsvWriter> getFeedInfoCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getLevelCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getPathwayCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getAttributionCsvw(std::ostream* os);
 };
 }  // namespace cppgtfs
 }  // namespace ad

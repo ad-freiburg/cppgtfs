@@ -137,6 +137,12 @@ bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
     fs.close();
   }
 
+  // curFile = gtfsPath + "/attributions.txt";
+  // fs.open(curFile.c_str());
+  // if (!fs.good()) cannotWrite(curFile);
+  // writeAttribution(sourceFeed, &fs);
+  // fs.close();
+
   return true;
 }
 
@@ -184,7 +190,8 @@ bool Writer::writeAgency(const gtfs::flat::Agency& ag, CsvWriter* csvw,
 bool Writer::writeAgencies(gtfs::Feed* sourceFeed, std::ostream* s) const {
   auto csvw = getAgencyCsvw(s, sourceFeed->getAgencyAddFlds());
   for (const auto& a : sourceFeed->getAgencies()) {
-    writeAgency(a.second->getFlat(), csvw.get(), sourceFeed->getAgencyAddFlds());
+    writeAgency(a.second->getFlat(), csvw.get(),
+                sourceFeed->getAgencyAddFlds());
   }
 
   return true;
@@ -758,6 +765,13 @@ bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
 }
 
 // ____________________________________________________________________________
+std::unique_ptr<CsvWriter> Writer::getAttributionCsvw(std::ostream* os) {
+  return std::unique_ptr<CsvWriter>(
+      new CsvWriter(os, {"organization_name", "attribution_url", "is_producer",
+                         "is_operator", "is_authority"}));
+}
+
+// ____________________________________________________________________________
 std::unique_ptr<CsvWriter> Writer::getPathwayCsvw(std::ostream* os) {
   return std::unique_ptr<CsvWriter>(new CsvWriter(
       os,
@@ -802,6 +816,11 @@ bool Writer::writePathway(const gtfs::flat::Pathway& l, CsvWriter* csvw) const {
   csvw->writeString(l.reversed_signposted_as);
   csvw->flushLine();
 
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeAttribution(gtfs::Feed*, std::ostream* s) const {
   return true;
 }
 
