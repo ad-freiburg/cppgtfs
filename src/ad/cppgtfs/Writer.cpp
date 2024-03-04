@@ -820,7 +820,7 @@ bool Writer::writePathway(const gtfs::flat::Pathway& l, CsvWriter* csvw) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeAttribution(gtfs::Feed*, std::ostream* s) const {
+bool Writer::writeAttribution(gtfs::Feed*, std::ostream*) const {
   return true;
 }
 
