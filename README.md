@@ -4,13 +4,17 @@ Parses GTFS feeds into memory. Extensive validation is applied. Currently used b
 
 ## Usage
 
-```
+```cpp
 #include "ad/cppgtfs/Parser.h"
 
-[...]
+// [...]
 
-ad::cppgtfs::Parser parser;
+ad::cppgtfs::Parser parser("path/to/gtfs/folder");
 ad::cppgtfs::gtfs::Feed feed;
 
-parser.parse(&feed, "path/to/gtfs/folder");
+bool result = parser.parse(&feed);
 ```
+
+## Optional dependencies
+
+- LibZip
