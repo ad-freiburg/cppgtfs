@@ -476,9 +476,9 @@ inline bool Parser::nextPathway(CsvParser* csvp, gtfs::flat::Pathway* a,
     a->is_bidirectional = getRangeInteger(*csvp, flds.isBidirectionalFld, 0, 1);
     a->length = getDouble(*csvp, flds.lengthFld, -1);
     a->traversal_time =
-        getRangeInteger(*csvp, flds.traverselTimeFld, 0, UINT32_MAX, -1);
+        getRangeInteger(*csvp, flds.traverselTimeFld, 0, INT64_MAX, -1);
     a->stair_count =
-        getRangeInteger(*csvp, flds.stairCountFld, 1, UINT32_MAX, 0);
+        getRangeInteger(*csvp, flds.stairCountFld, -INT64_MAX, INT64_MAX, 0);
     a->max_slope = getDouble(*csvp, flds.maxSlopeFld, 0);
     a->min_width = getDouble(*csvp, flds.minWidthFld, -1);
     a->signposted_as = getString(*csvp, flds.signPostedAsFld, "");

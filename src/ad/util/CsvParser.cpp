@@ -204,13 +204,13 @@ double CsvParser::getDouble(const size_t i) const {
 // _____________________________________________________________________________
 int32_t CsvParser::getLong(const size_t i) const {
   if (i >= _currentItems.size())
-    throw CsvParserException("expected non-negative integer number", i,
-                             getFieldName(i), _curLine, _readablePath);
+    throw CsvParserException("expected integer number", i, getFieldName(i),
+                             _curLine, _readablePath);
   bool fail = false;
   uint32_t ret = atoi(_currentItems[i], &fail);
   if (fail)
-    throw CsvParserException("expected non-negative integer number", i,
-                             getFieldName(i), _curLine, _readablePath);
+    throw CsvParserException("expected integer number", i, getFieldName(i),
+                             _curLine, _readablePath);
   return ret;
 }
 

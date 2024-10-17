@@ -797,7 +797,7 @@ bool Writer::writePathway(const gtfs::flat::Pathway& l, CsvWriter* csvw) const {
   else
     csvw->writeInt(l.traversal_time);
 
-  if (l.stair_count < 1)
+  if (l.stair_count == 0)
     csvw->skip();
   else
     csvw->writeInt(l.stair_count);
