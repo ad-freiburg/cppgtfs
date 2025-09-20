@@ -1662,11 +1662,12 @@ Time Parser::getTime(const CsvParser& csv, size_t field) const {
   // TODO(patrick): null value
   if (val[0] == 0) return Time();
 
+  //increase hour limit to uint16
   try {
     uint32_t h = atoi(&val);
-    if (h > 255)
+    if (h > 65535)
       throw std::out_of_range(
-          "only non-negative hour-values up to 255 are "
+          "only non-negative hour-values up to 65535 are "
           "supported.");
     if (*val != ':') {
       throw std::invalid_argument("invalid separator");
