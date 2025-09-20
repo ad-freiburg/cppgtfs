@@ -36,9 +36,10 @@ struct StopTimeFlds {
   size_t continuousPickupFld;
 };
 
+//increase hour limit to uint16
 struct Time {
   Time() : m(61), s(0), h(0) {}
-  Time(uint8_t h, uint8_t m, uint8_t s) : m(m), s(s), h(h) {}
+  Time(uint16_t h, uint8_t m, uint8_t s) : m(m), s(s), h(h) {}
   bool empty() const { return m > 60; }
   int seconds() const { return s + m * 60 + h * 3600; }
   std::string toString() const {
@@ -52,7 +53,7 @@ struct Time {
   }
   uint8_t m : 6;
   uint8_t s : 6;
-  uint8_t h : 8;
+  uint16_t h : 8;
 };
 
 inline bool operator>(const Time& lh, const Time& rh) {
