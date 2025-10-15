@@ -67,7 +67,7 @@ class Writer {
   bool write(gtfs::Feed* sourceFeed, const std::string& path) const;
 
   bool writeAgency(const gtfs::flat::Agency& ag, CsvWriter* csvw,
-                 const gtfs::AddFlds& addFlds) const;
+                   const gtfs::AddFlds& addFlds) const;
   bool writeAgencies(gtfs::Feed* f, std::ostream* os) const;
 
   bool writeStop(const gtfs::flat::Stop& ag, CsvWriter* csvw,
@@ -115,12 +115,16 @@ class Writer {
   bool writePathway(const gtfs::flat::Pathway& ag, CsvWriter* csvw) const;
   bool writePathways(gtfs::Feed* f, std::ostream* os) const;
 
-  bool writeAttribution(gtfs::Feed*, std::ostream* os) const;
+  bool writeAttribution(const gtfs::flat::Attribution& a,
+                        CsvWriter* csvw) const;
+  bool writeAttributions(gtfs::Feed*, std::ostream* os) const;
+
+  bool writeTranslations(gtfs::Feed*, std::ostream* os) const;
 
   static void cannotWrite(const std::string& file);
 
   static std::unique_ptr<CsvWriter> getAgencyCsvw(std::ostream* os,
-                                                 const gtfs::AddFlds& addFlds);
+                                                  const gtfs::AddFlds& addFlds);
   static std::unique_ptr<CsvWriter> getStopsCsvw(std::ostream* os,
                                                  const gtfs::AddFlds& addFlds);
   static std::unique_ptr<CsvWriter> getRoutesCsvw(std::ostream* os,
@@ -129,6 +133,7 @@ class Writer {
   static std::unique_ptr<CsvWriter> getCalendarDatesCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getFrequencyCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getTransfersCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getAttributionsCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getFaresCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getFareRulesCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getShapesCsvw(std::ostream* os);

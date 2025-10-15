@@ -78,6 +78,16 @@ typename FEEDB::Transfers& FEEDB::getTransfers() { return _transfers; }
 
 // ____________________________________________________________________________
 FEEDTPL
+const typename FEEDB::Attributions& FEEDB::getAttributions() const {
+  return _attributions;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+typename FEEDB::Attributions& FEEDB::getAttributions() { return _attributions; }
+
+// ____________________________________________________________________________
+FEEDTPL
 const typename FEEDB::Zones& FEEDB::getZones() const { return _zones; }
 
 // ____________________________________________________________________________
@@ -191,32 +201,28 @@ double FEEDB::getMaxLon() const { return _maxLon; }
 
 // ____________________________________________________________________________
 FEEDTPL
-void FEEDB::addTripAddFld(const std::string& id,
-                                    const std::string& name,
-                                    const std::string& val) {
+void FEEDB::addTripAddFld(const std::string& id, const std::string& name,
+                          const std::string& val) {
   _tripAddFields[name][id] = val;
 }
 
 // ____________________________________________________________________________
 FEEDTPL
-void FEEDB::addRouteAddFld(const std::string& id,
-                                    const std::string& name,
-                                    const std::string& val) {
+void FEEDB::addRouteAddFld(const std::string& id, const std::string& name,
+                           const std::string& val) {
   _routeAddFields[name][id] = val;
 }
 
 // ____________________________________________________________________________
 FEEDTPL
-void FEEDB::addStopAddFld(const std::string& id,
-                                    const std::string& name,
-                                    const std::string& val) {
+void FEEDB::addStopAddFld(const std::string& id, const std::string& name,
+                          const std::string& val) {
   _stopAddFields[name][id] = val;
 }
 
 // ____________________________________________________________________________
 FEEDTPL
-void FEEDB::addAgencyAddFld(const std::string& id,
-                                    const std::string& name,
-                                    const std::string& val) {
+void FEEDB::addAgencyAddFld(const std::string& id, const std::string& name,
+                            const std::string& val) {
   _agencyAddFields[name][id] = val;
 }

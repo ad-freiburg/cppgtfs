@@ -38,6 +38,7 @@
 #include "gtfs/flat/Service.h"
 #include "gtfs/flat/Shape.h"
 #include "gtfs/flat/Transfer.h"
+#include "gtfs/flat/Attribution.h"
 
 using ad::cppgtfs::gtfs::Agency;
 using ad::cppgtfs::gtfs::Fare;
@@ -221,6 +222,10 @@ class Parser {
   inline bool nextTransfer(CsvParser* csvp, gtfs::flat::Transfer* s,
                            const gtfs::flat::TransfersFlds&) const;
 
+  inline static gtfs::flat::AttributionsFlds getAttributionsFlds(CsvParser* csvp);
+  inline bool nextAttribution(CsvParser* csvp, gtfs::flat::Attribution* s,
+                           const gtfs::flat::AttributionsFlds&) const;
+
   inline static gtfs::flat::FareFlds getFareFlds(CsvParser* csvp);
   inline bool nextFare(CsvParser* csvp, gtfs::flat::Fare* s,
                        const gtfs::flat::FareFlds&) const;
@@ -284,6 +289,9 @@ class Parser {
   void parseTransfers(gtfs::FEEDB* targetFeed) const;
 
   FEEDTPL
+  void parseAttributions(gtfs::FEEDB* targetFeed) const;
+
+  FEEDTPL
   void parseFeedInfo(gtfs::FEEDB* targetFeed) const;
 
   inline std::unique_ptr<CsvParser> getCsvParser(const std::string& file) const;
@@ -341,6 +349,9 @@ class Parser {
 
   FEEDTPL
   void parseTransfers(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;
+
+  FEEDTPL
+  void parseAttributions(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;
 
   FEEDTPL
   void parseFeedInfo(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;

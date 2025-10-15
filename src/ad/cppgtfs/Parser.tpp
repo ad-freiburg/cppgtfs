@@ -21,11 +21,122 @@ FEEDTPL bool Parser::parse(gtfs::FEEDB* targetFeed) const {
   parseStopTimes(targetFeed);
   parseFrequencies(targetFeed);
   parseTransfers(targetFeed);
+  parseAttributions(targetFeed);
   parseFareAttributes(targetFeed);
   parseFareRules(targetFeed);
   parsePathways(targetFeed);
 
   return true;
+}
+
+// ____________________________________________________________________________
+inline gtfs::flat::AttributionsFlds Parser::getAttributionsFlds(
+    CsvParser* csvp) {
+  gtfs::flat::AttributionsFlds t;
+  t.attributionIdFld = csvp->getOptFieldIndex("attribution_id");
+  t.agencyIdFld = csvp->getOptFieldIndex("agency_id");
+  t.routeIdFld = csvp->getOptFieldIndex("route_id");
+  t.tripIdFld = csvp->getOptFieldIndex("trip_id");
+  t.organizationNameFld = csvp->getFieldIndex("organization_name");
+  t.isProducerFld = csvp->getOptFieldIndex("is_producer");
+  t.isOperatorFld = csvp->getOptFieldIndex("is_operator");
+  t.isAuthorityFld = csvp->getOptFieldIndex("is_authority");
+  t.attributionUrlFld = csvp->getOptFieldIndex("attribution_url");
+  t.attributionMailFld = csvp->getOptFieldIndex("attribution_email");
+  t.attributionPhoneFld = csvp->getOptFieldIndex("attribution_phone");
+
+  // for (size_t i = 0; i < csvp->getNumHeaders(); i++) {
+    // if (i == t.attributionIdFld || i == t.agencyIdFld || i == t.routeIdFld ||
+        // i == t.tripIdFld || i == t.organizationNameFld ||
+        // i == t.isProducerFld || i == t.isOperatorFld || i == t.isAuthorityFld ||
+        // i == t.attributionUrlFld || i == t.attributionMailFld ||
+        // i == t.attributionPhoneFld) {
+      // continue;
+    // }
+    // t.addHeaders.push_back(i);
+  // }
+
+  return t;
+}
+
+// ____________________________________________________________________________
+inline bool Parser::nextAttribution(
+    CsvParser* csvp, gtfs::flat::Attribution* a,
+    const gtfs::flat::AttributionsFlds& flds) const {
+  if (csvp->readNextLine()) {
+    a->attributionId = getString(*csvp, flds.attributionIdFld, "");
+    a->agencyId = getString(*csvp, flds.agencyIdFld, "");
+    a->routeId = getString(*csvp, flds.routeIdFld, "");
+    a->tripId = getString(*csvp, flds.tripIdFld, "");
+    a->organizationName = getString(*csvp, flds.organizationNameFld, "");
+    a->isProducer = static_cast<gtfs::flat::Attribution::TYPE>(
+        getRangeInteger(*csvp, flds.isProducerFld, 0, 1, 0));
+    a->isOperator = static_cast<gtfs::flat::Attribution::TYPE>(
+        getRangeInteger(*csvp, flds.isOperatorFld, 0, 1, 0));
+    a->isAuthority = static_cast<gtfs::flat::Attribution::TYPE>(
+        getRangeInteger(*csvp, flds.isAuthorityFld, 0, 1, 0));
+    a->attributionUrl = getString(*csvp, flds.attributionUrlFld, "");
+    a->attributionEmail = getString(*csvp, flds.attributionMailFld, "");
+    a->attributionPhone = getString(*csvp, flds.attributionPhoneFld, "");
+    return true;
+  }
+
+  return false;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void Parser::parseAttributions(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
+  gtfs::flat::Attribution a;
+  auto flds = getAttributionsFlds(csvp);
+
+  while (nextAttribution(csvp, &a, flds)) {
+    typename AgencyT::Ref agency = 0;
+    RouteT* route = 0;
+    TripB<StopTimeT<StopT>, ServiceT, RouteT, ShapeT>* trip = 0;
+
+    if (a.agencyId.size()) {
+      agency = targetFeed->getAgencies().get(a.agencyId);
+      if (!agency) {
+        std::stringstream msg;
+        msg << "no agency with id '" << a.agencyId
+            << "' defined in agency.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "agency_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
+      }
+    }
+
+    if (a.tripId.size()) {
+      trip = targetFeed->getTrips().get(a.tripId);
+      if (!trip) {
+        std::stringstream msg;
+        msg << "no trip with id '" << a.tripId
+            << "' defined in trips.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "trip_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
+      }
+    }
+
+    if (a.routeId.size()) {
+      route = targetFeed->getRoutes().get(a.routeId);
+      if (!route) {
+        std::stringstream msg;
+        msg << "no route with id '" << a.routeId
+            << "' defined in routes.txt, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "route_id", csvp->getCurLine(),
+                              csvp->getReadablePath());
+      }
+    }
+
+    ad::cppgtfs::gtfs::Attribution<StopT, StopTimeT, ServiceT, RouteT, ShapeT>
+        t(a.attributionId, agency, route, trip, a.organizationName,
+          a.isProducer, a.isOperator, a.isAuthority, a.attributionUrl,
+          a.attributionEmail, a.attributionPhone);
+    targetFeed->getAttributions().push_back(t);
+  }
 }
 
 // ____________________________________________________________________________
@@ -1284,6 +1395,20 @@ void Parser::parseFareAttributes(gtfs::FEEDB* targetFeed) const {
     auto csvp = getCsvParser("fare_attributes.txt");
     if (csvp->isGood()) {
       parseFareAttributes(targetFeed, csvp.get());
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
+  }
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void Parser::parseAttributions(gtfs::FEEDB* targetFeed) const {
+  std::string curFile = _path + "/attributions.txt";
+  try {
+    auto csvp = getCsvParser("attributions.txt");
+    if (csvp->isGood()) {
+      parseAttributions(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
     throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);

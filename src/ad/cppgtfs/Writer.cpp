@@ -137,11 +137,21 @@ bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
     fs.close();
   }
 
-  // curFile = gtfsPath + "/attributions.txt";
+  if (sourceFeed->getAttributions().size()) {
+    curFile = gtfsPath + "/attributions.txt";
+    fs.open(curFile.c_str());
+    if (!fs.good()) cannotWrite(curFile);
+    writeAttributions(sourceFeed, &fs);
+    fs.close();
+  }
+
+  // if (sourceFeed->getTranslations().size()) {
+  // curFile = gtfsPath + "/translations.txt";
   // fs.open(curFile.c_str());
   // if (!fs.good()) cannotWrite(curFile);
-  // writeAttribution(sourceFeed, &fs);
+  // writeTranslations(sourceFeed, &fs);
   // fs.close();
+  // }
 
   return true;
 }
@@ -820,7 +830,58 @@ bool Writer::writePathway(const gtfs::flat::Pathway& l, CsvWriter* csvw) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeAttribution(gtfs::Feed*, std::ostream*) const {
+std::unique_ptr<CsvWriter> Writer::getAttributionsCsvw(std::ostream* os) {
+  return std::unique_ptr<CsvWriter>(new CsvWriter(
+      os, {"attribution_id", "agency_id", "route_id", "trip_id",
+           "organization_name", "is_producer", "is_operator", "is_authority",
+           "attribution_url", "attribution_email", "attribution_phone"}));
+}
+
+// ____________________________________________________________________________
+bool Writer::writeAttribution(const gtfs::flat::Attribution& t,
+                              CsvWriter* csvw) const {
+  csvw->writeString(t.attributionId);
+  csvw->writeString(t.agencyId);
+  csvw->writeString(t.routeId);
+  csvw->writeString(t.tripId);
+  csvw->writeString(t.organizationName);
+  if (t.isProducer == gtfs::flat::Attribution::TYPE::ROLE) {
+    csvw->writeInt(t.isProducer);
+  } else {
+    csvw->skip();
+  }
+  if (t.isOperator == gtfs::flat::Attribution::TYPE::ROLE) {
+    csvw->writeInt(t.isOperator);
+  } else {
+    csvw->skip();
+  }
+  if (t.isAuthority == gtfs::flat::Attribution::TYPE::ROLE) {
+    csvw->writeInt(t.isAuthority);
+  } else {
+    csvw->skip();
+  }
+  csvw->writeString(t.attributionUrl);
+  csvw->writeString(t.attributionEmail);
+  csvw->writeString(t.attributionPhone);
+
+  csvw->flushLine();
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeAttributions(gtfs::Feed* f, std::ostream* os) const {
+  auto csvw = getAttributionsCsvw(os);
+  csvw->flushLine();
+
+  for (const auto& t : f->getAttributions()) {
+    writeAttribution(t.getFlat(), csvw.get());
+  }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeTranslations(gtfs::Feed*, std::ostream*) const {
   return true;
 }
 
