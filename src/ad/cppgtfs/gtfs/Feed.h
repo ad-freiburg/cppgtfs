@@ -26,6 +26,7 @@
 #include "Transfer.h"
 #include "Trip.h"
 #include "Attribution.h"
+#include "Translation.h"
 
 #define FEEDTPL                                                                \
   template <typename AgencyT, typename RouteT, typename StopT,                 \
@@ -68,6 +69,7 @@ class FeedB {
       Transfers;
   typedef std::vector<Attribution<StopT, StopTimeT, ServiceT, RouteT, ShapeT>>
       Attributions;
+  typedef std::vector<Translation> Translations;
   typedef std::set<std::string> Zones;
 
  public:
@@ -99,6 +101,9 @@ class FeedB {
 
   const Attributions& getAttributions() const;
   Attributions& getAttributions();
+
+  const Translations& getTranslations() const;
+  Translations& getTranslations();
 
   const Zones& getZones() const;
   Zones& getZones();
@@ -164,6 +169,7 @@ class FeedB {
   Services _services;
   Transfers _transfers;
   Attributions _attributions;
+  Translations _translations;
   Zones _zones;
   Fares _fares;
   Levels _levels;

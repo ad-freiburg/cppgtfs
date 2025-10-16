@@ -25,8 +25,95 @@ FEEDTPL bool Parser::parse(gtfs::FEEDB* targetFeed) const {
   parseFareAttributes(targetFeed);
   parseFareRules(targetFeed);
   parsePathways(targetFeed);
+  parseTranslations(targetFeed);
 
   return true;
+}
+
+// ____________________________________________________________________________
+inline gtfs::flat::TranslationFlds Parser::getTranslationFlds(CsvParser* csvp) {
+  gtfs::flat::TranslationFlds t;
+  t.tableFld = csvp->getFieldIndex("table_name");
+  t.fieldNameFld = csvp->getFieldIndex("field_name");
+  t.languageFld = csvp->getFieldIndex("language");
+  t.translationFld = csvp->getFieldIndex("translation");
+  t.recordIdFld = csvp->getOptFieldIndex("record_id");
+  t.recordSubIdFld = csvp->getOptFieldIndex("record_sub_id");
+  t.fieldValueFld = csvp->getOptFieldIndex("field_value");
+
+  return t;
+}
+
+// ____________________________________________________________________________
+inline bool Parser::nextTranslation(
+    CsvParser* csvp, gtfs::flat::Translation* t,
+    const gtfs::flat::TranslationFlds& flds) const {
+  if (csvp->readNextLine()) {
+    std::string table = getString(*csvp, flds.tableFld, "");
+    if (table == "agency")
+      t->table = gtfs::flat::Translation::TABLE::AGENCY;
+    else if (table == "stops")
+      t->table = gtfs::flat::Translation::TABLE::STOPS;
+    else if (table == "routes")
+      t->table = gtfs::flat::Translation::TABLE::ROUTES;
+    else if (table == "trips")
+      t->table = gtfs::flat::Translation::TABLE::TRIPS;
+    else if (table == "stop_times")
+      t->table = gtfs::flat::Translation::TABLE::STOP_TIMES;
+    else if (table == "pathways")
+      t->table = gtfs::flat::Translation::TABLE::PATHWAYS;
+    else if (table == "levels")
+      t->table = gtfs::flat::Translation::TABLE::LEVELS;
+    else if (table == "feed_info")
+      t->table = gtfs::flat::Translation::TABLE::FEED_INFO;
+    else if (table == "attributions")
+      t->table = gtfs::flat::Translation::TABLE::ATTRIBUTIONS;
+    else {
+      std::stringstream msg;
+      msg << "'" << table << "' is not a valid table";
+      throw ParserException(msg.str(), "table_name", csvp->getCurLine(),
+                            csvp->getReadablePath());
+    }
+
+    t->fieldName = getString(*csvp, flds.fieldNameFld, "");
+    t->language = getString(*csvp, flds.languageFld, "");
+    t->translation = getString(*csvp, flds.translationFld, "");
+    t->recordId = getString(*csvp, flds.recordIdFld, "");
+    t->recordSubId = getString(*csvp, flds.recordSubIdFld, "");
+    t->fieldValue = getString(*csvp, flds.fieldValueFld, "");
+
+    if (t->fieldName.size() == 0) {
+      std::stringstream msg;
+      msg << "'field_name' is a required field";
+      throw ParserException(msg.str(), "field_name", csvp->getCurLine(),
+                            csvp->getReadablePath());
+    }
+
+    if (t->language.size() == 0) {
+      std::stringstream msg;
+      msg << "'language' is a required field";
+      throw ParserException(msg.str(), "language", csvp->getCurLine(),
+                            csvp->getReadablePath());
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void Parser::parseTranslations(gtfs::FEEDB* targetFeed, CsvParser* csvp) const {
+  gtfs::flat::Translation a;
+  auto flds = getTranslationFlds(csvp);
+
+  while (nextTranslation(csvp, &a, flds)) {
+    ad::cppgtfs::gtfs::Translation t(a.table, a.fieldName, a.language,
+                                     a.translation, a.recordId, a.recordSubId,
+                                     a.fieldValue);
+    targetFeed->getTranslations().push_back(t);
+  }
 }
 
 // ____________________________________________________________________________
@@ -46,14 +133,14 @@ inline gtfs::flat::AttributionsFlds Parser::getAttributionsFlds(
   t.attributionPhoneFld = csvp->getOptFieldIndex("attribution_phone");
 
   // for (size_t i = 0; i < csvp->getNumHeaders(); i++) {
-    // if (i == t.attributionIdFld || i == t.agencyIdFld || i == t.routeIdFld ||
-        // i == t.tripIdFld || i == t.organizationNameFld ||
-        // i == t.isProducerFld || i == t.isOperatorFld || i == t.isAuthorityFld ||
-        // i == t.attributionUrlFld || i == t.attributionMailFld ||
-        // i == t.attributionPhoneFld) {
-      // continue;
-    // }
-    // t.addHeaders.push_back(i);
+  // if (i == t.attributionIdFld || i == t.agencyIdFld || i == t.routeIdFld ||
+  // i == t.tripIdFld || i == t.organizationNameFld ||
+  // i == t.isProducerFld || i == t.isOperatorFld || i == t.isAuthorityFld ||
+  // i == t.attributionUrlFld || i == t.attributionMailFld ||
+  // i == t.attributionPhoneFld) {
+  // continue;
+  // }
+  // t.addHeaders.push_back(i);
   // }
 
   return t;
@@ -1395,6 +1482,20 @@ void Parser::parseFareAttributes(gtfs::FEEDB* targetFeed) const {
     auto csvp = getCsvParser("fare_attributes.txt");
     if (csvp->isGood()) {
       parseFareAttributes(targetFeed, csvp.get());
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);
+  }
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+void Parser::parseTranslations(gtfs::FEEDB* targetFeed) const {
+  std::string curFile = _path + "/translations.txt";
+  try {
+    auto csvp = getCsvParser("translations.txt");
+    if (csvp->isGood()) {
+      parseTranslations(targetFeed, csvp.get());
     }
   } catch (const CsvParserException& e) {
     throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(), curFile);

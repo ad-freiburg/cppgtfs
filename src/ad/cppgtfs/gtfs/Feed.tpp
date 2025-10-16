@@ -88,6 +88,16 @@ typename FEEDB::Attributions& FEEDB::getAttributions() { return _attributions; }
 
 // ____________________________________________________________________________
 FEEDTPL
+const typename FEEDB::Translations& FEEDB::getTranslations() const {
+  return _translations;
+}
+
+// ____________________________________________________________________________
+FEEDTPL
+typename FEEDB::Translations& FEEDB::getTranslations() { return _translations; }
+
+// ____________________________________________________________________________
+FEEDTPL
 const typename FEEDB::Zones& FEEDB::getZones() const { return _zones; }
 
 // ____________________________________________________________________________

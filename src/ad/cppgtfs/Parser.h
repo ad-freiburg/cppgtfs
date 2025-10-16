@@ -226,6 +226,10 @@ class Parser {
   inline bool nextAttribution(CsvParser* csvp, gtfs::flat::Attribution* s,
                            const gtfs::flat::AttributionsFlds&) const;
 
+  inline static gtfs::flat::TranslationFlds getTranslationFlds(CsvParser* csvp);
+  inline bool nextTranslation(CsvParser* csvp, gtfs::flat::Translation* s,
+                           const gtfs::flat::TranslationFlds&) const;
+
   inline static gtfs::flat::FareFlds getFareFlds(CsvParser* csvp);
   inline bool nextFare(CsvParser* csvp, gtfs::flat::Fare* s,
                        const gtfs::flat::FareFlds&) const;
@@ -292,6 +296,9 @@ class Parser {
   void parseAttributions(gtfs::FEEDB* targetFeed) const;
 
   FEEDTPL
+  void parseTranslations(gtfs::FEEDB* targetFeed) const;
+
+  FEEDTPL
   void parseFeedInfo(gtfs::FEEDB* targetFeed) const;
 
   inline std::unique_ptr<CsvParser> getCsvParser(const std::string& file) const;
@@ -352,6 +359,10 @@ class Parser {
 
   FEEDTPL
   void parseAttributions(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;
+
+  FEEDTPL
+  void parseTranslations(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;
+
 
   FEEDTPL
   void parseFeedInfo(gtfs::FEEDB* targetFeed, CsvParser* csvp) const;
