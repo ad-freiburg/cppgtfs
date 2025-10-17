@@ -145,13 +145,13 @@ bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
     fs.close();
   }
 
-  // if (sourceFeed->getTranslations().size()) {
-  // curFile = gtfsPath + "/translations.txt";
-  // fs.open(curFile.c_str());
-  // if (!fs.good()) cannotWrite(curFile);
-  // writeTranslations(sourceFeed, &fs);
-  // fs.close();
-  // }
+  if (sourceFeed->getTranslations().size()) {
+    curFile = gtfsPath + "/translations.txt";
+    fs.open(curFile.c_str());
+    if (!fs.good()) cannotWrite(curFile);
+    writeTranslations(sourceFeed, &fs);
+    fs.close();
+  }
 
   return true;
 }
@@ -881,7 +881,62 @@ bool Writer::writeAttributions(gtfs::Feed* f, std::ostream* os) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeTranslations(gtfs::Feed*, std::ostream*) const {
+std::unique_ptr<CsvWriter> Writer::getTranslationsCsvw(std::ostream* os) {
+  return std::unique_ptr<CsvWriter>(new CsvWriter(
+      os, {"table_name", "field_name", "language", "translation", "record_id", "record_sub_id", "field_value"}));
+}
+
+// ____________________________________________________________________________
+bool Writer::writeTranslation(const gtfs::flat::Translation& t,
+                              CsvWriter* csvw) const {
+  if (t.table == gtfs::flat::Translation::TABLE::AGENCY) {
+    csvw->writeString("agency");
+  }
+  if (t.table == gtfs::flat::Translation::TABLE::STOPS) {
+    csvw->writeString("stops");
+  }
+  if (t.table == gtfs::flat::Translation::TABLE::ROUTES) {
+    csvw->writeString("routes");
+  }
+  if (t.table == gtfs::flat::Translation::TABLE::TRIPS) {
+    csvw->writeString("trips");
+  }
+  if (t.table == gtfs::flat::Translation::TABLE::STOP_TIMES) {
+    csvw->writeString("stop_times");
+  }
+  if (t.table == gtfs::flat::Translation::TABLE::PATHWAYS) {
+    csvw->writeString("pathways");
+  }
+  if (t.table == gtfs::flat::Translation::TABLE::LEVELS) {
+    csvw->writeString("levels");
+  }
+  if (t.table == gtfs::flat::Translation::TABLE::FEED_INFO) {
+    csvw->writeString("feed_info");
+  }
+  if (t.table == gtfs::flat::Translation::TABLE::ATTRIBUTIONS) {
+    csvw->writeString("attributions");
+  }
+
+  csvw->writeString(t.fieldName);
+  csvw->writeString(t.language);
+  csvw->writeString(t.translation);
+  csvw->writeString(t.recordId);
+  csvw->writeString(t.recordSubId);
+  csvw->writeString(t.fieldValue);
+
+  csvw->flushLine();
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeTranslations(gtfs::Feed* f, std::ostream* os) const {
+  auto csvw = getTranslationsCsvw(os);
+  csvw->flushLine();
+
+  for (const auto& t : f->getTranslations()) {
+    writeTranslation(t.getFlat(), csvw.get());
+  }
+
   return true;
 }
 

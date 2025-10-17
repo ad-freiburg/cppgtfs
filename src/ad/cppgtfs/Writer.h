@@ -27,6 +27,8 @@
 #include "gtfs/flat/Shape.h"
 #include "gtfs/flat/StopTime.h"
 #include "gtfs/flat/Transfer.h"
+#include "gtfs/flat/Attribution.h"
+#include "gtfs/flat/Translation.h"
 #include "gtfs/flat/Trip.h"
 
 using ad::util::CsvWriter;
@@ -119,6 +121,8 @@ class Writer {
                         CsvWriter* csvw) const;
   bool writeAttributions(gtfs::Feed*, std::ostream* os) const;
 
+  bool writeTranslation(const gtfs::flat::Translation& a,
+                        CsvWriter* csvw) const;
   bool writeTranslations(gtfs::Feed*, std::ostream* os) const;
 
   static void cannotWrite(const std::string& file);
@@ -134,6 +138,7 @@ class Writer {
   static std::unique_ptr<CsvWriter> getFrequencyCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getTransfersCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getAttributionsCsvw(std::ostream* os);
+  static std::unique_ptr<CsvWriter> getTranslationsCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getFaresCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getFareRulesCsvw(std::ostream* os);
   static std::unique_ptr<CsvWriter> getShapesCsvw(std::ostream* os);
